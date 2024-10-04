@@ -1,5 +1,6 @@
 using Plots
-using .devoir1_lib, .devoir1_lib.Enonce1_lib
+
+include("devoir1_lib.jl")
 
 
 fs = 500
@@ -7,6 +8,8 @@ fs = 500
 parts_end, t, signal = init(fs, [35.4, 57, 70])
 
 plot(t[begin:parts_end[1]], signal[begin:parts_end[1]], label=false, color=:orange)
+display(parts_end[1])
+display(parts_end[2])
 plot!(t[parts_end[1]:parts_end[2]], signal[parts_end[1]:parts_end[2]], label=false, color=:green)
 plot!(t[parts_end[2]:parts_end[3]], signal[parts_end[2]:parts_end[3]], label=false, color=:blue)
 plot!(t[parts_end[3]:end], signal[parts_end[3]:end], label=false, color=:red)

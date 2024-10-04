@@ -1,10 +1,10 @@
-module devoir1_lib
-
 using MAT
-using DSP
+using Plots, Plots.PlotMeasures, StatsPlots
+using SignalAnalysis, DSP
+using ControlSystemsBase
+using Statistics, Distributions
 
 
-export init
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
     file = matopen(pwd() * "\\Devoir_1\\poignee1ddl_4.mat")
@@ -42,16 +42,8 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
     end
 end
 
-module Enonce1_lib
-
-using Plots, Plots.PlotMeasures, StatsPlots
-using SignalAnalysis, DSP
-using ControlSystemsBase
-using Statistics, Distributions
 
 ## Question 1.1 =====================================================================================================
-export obw
-
 function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
     periodgram = periodogram(signal, fs=fs)
     p = power(periodgram)
@@ -91,9 +83,9 @@ end
 
 
 ## Question 1.2 =====================================================================================================
-export Butteranalyse
+function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2, p_title::String="", fc2::Number=50)
+    t = 0:1/fs:(length(signal)-1)/fs
 
-function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2, fc2::Number=50)
     if type == :lowpass
         filtertype = Lowpass(fc/(fs/2))
     elseif type == :bandpass
@@ -119,15 +111,14 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2
     plot(t, signal, label="Signal non filtré", linewidth=2)
     xaxis!("Time (s)")
     yaxis!("Displacement (m)")
+    title!("Filter order $(order) with fc=$(fc) Hz")
     f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", linewidth=2, top_margin = 5mm, right_margin = 5mm)
 
-    display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title="Filter order $(order) with fc=$(fc) Hz", size = (1000, 800), left_margin = 5mm))
+    display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title=p_title, size = (1000, 800), left_margin = 5mm))
 end
 
 
 ## Question 1.3 =====================================================================================================
-export statisticVar, plotStatVar
-
 function statisticVar(data::Array; p_title::String="")
     feature = zeros(4)
     feature_names = ["Mean", "Standard Deviation", "Kurtosis", "Skewness"]
@@ -177,8 +168,6 @@ end
 
 
 ## Question 1.4 =====================================================================================================
-export crosscorr
-
 function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
     if (lims1[2]-lims1[1]) != (lims2[2]-lims2[1])
         if (lims1[2]-lims1[1]) > (lims2[2]-lims2[1])
@@ -206,8 +195,4 @@ function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
     yaxis!("Correlation")
 
     display(plot(p_time_sig, p_cor, p_crosscor, layout=(3, 1), plot_title=p_title, size=(700, 700)))
-end
-
-end
-
 end
