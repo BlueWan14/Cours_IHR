@@ -79,11 +79,6 @@ filtered_humansignal = filt(HumanFilter, opvar[3, :])
 VibFilter = digitalfilter(Bandpass(fc_human/(fs/2), fc_vib/(fs/2)), Butterworth(order))
 filtered_vibsignal = filt(VibFilter, opvar[3, :])
 
-# plotStatVar(filtered_humansignal, filtered_vibsignal, t; ending=parts_end[1])
-# plotStatVar(filtered_humansignal, filtered_vibsignal, t; beginning=parts_end[1], ending=parts_end[2])
-# plotStatVar(filtered_humansignal, filtered_vibsignal, t; beginning=parts_end[2], ending=parts_end[3])
-# plotStatVar(filtered_humansignal, filtered_vibsignal, t; beginning=parts_end[3])
-
 features_human = []
 p_stat, feature = statisticVar(filtered_humansignal[begin:parts_end[1]], p_title="Human")
 append!(features_human, [feature])

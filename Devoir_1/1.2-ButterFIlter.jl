@@ -39,28 +39,25 @@ end
 
 
 fs = 500
-fc_human = 4
+fc_0Hz = .1
+fc_human = 6
 fc_vib = 24.1
 
 file = matopen("poignee1ddl_4.mat")
 opvar = read(file, "opvar_4")
 close(file)
 
-t = 0:1/fs:(length(opvar[3, :])-1)/fs
+## No 0Hz value ========================================================================
+Butteranalyse(opvar[3, :], fc_0Hz, fs, :highpass; p_title="Without 0Hz value")
 
-val_end = [35.4, 57, 70]
-parts_end = []
-i = 1
-for sig = t
-    if (sig >= val_end[i])
-        append!(parts_end, findall(j -> j == sig, t))
-        if i < length(val_end)
-            global i += 1
-        else
-            break
-        end
-    end
+# ## No human signal ===================================================================
+Butteranalyse(opvar[3, :], fc_human, fs, :highpass; p_title="Without human signal")
+
+# ## No sensor noise ===================================================================
+Butteranalyse(opvar[3, :], fc_vib, fs, :lowpass; p_title="Without sensor noises")
+
+# ## Lowpass Filter to reduce noise ====================================================
+for ord in [1, 2, 3, 5, 10]
+    Butteranalyse(opvar[3, :], fc_0Hz, fc2=fc_human, fs, :bandpass, order=ord; p_title="Human signal only")
+    Butteranalyse(opvar[3, :], fc_human, fc2=fc_vib, fs, :bandpass, order=ord; p_title="Vibrations only")
 end
-
-Butteranalyse(opvar[3, begin:parts_end[1]], .1, fs, :bandpass; p_title="Human signal only", fc2=fc_human)
-Butteranalyse(opvar[3, parts_end[1]:parts_end[2]], .1, fs, :bandpass; p_title="Vibration signal only", fc2=fc_vib)
