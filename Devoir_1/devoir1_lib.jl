@@ -1,17 +1,20 @@
-using MAT
-using Plots, Plots.PlotMeasures, StatsPlots
-using SignalAnalysis, DSP
+module devoir1_lib
 
+using MAT
+using DSP
+
+
+export init
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen("poignee1ddl_4.mat")
+    file = matopen(pwd() * "\\Devoir_1\\poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
     t = 0:1/fs:(length(opvar[3, :])-1)/fs
 
     parts_end = []
-    i = 1
+    global i = 1
     for sig = t
         if (sig >= val_end[i])
             append!(parts_end, findall(j -> j == sig, t))
@@ -35,12 +38,22 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
         
         return parts_end, t, filtered_humansignal, filtered_vibsignal
     else
-        return parts_end, t
+        return parts_end, t, opvar[3, :]
     end
 end
 
-function obw(var, fs)
-    periodgram = periodogram(var, fs=fs)
+module Enonce1_lib
+
+using Plots, Plots.PlotMeasures, StatsPlots
+using SignalAnalysis, DSP
+using ControlSystemsBase
+using Statistics, Distributions
+
+## Question 1.1 =====================================================================================================
+export obw
+
+function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
+    periodgram = periodogram(signal, fs=fs)
     p = power(periodgram)
     f = freq(periodgram)
 
@@ -62,13 +75,23 @@ function obw(var, fs)
     min = minimum(y)-10
     max = maximum(y)+10
     rect = Shape([f[p_index[1]], f[p_index[1]], f[p_index[end]], f[p_index[end]]], [max, min, min, max])
-    fft = plot(rect, opacity=.1, label=false)
-    psd!(var, fs=fs, nfft=10*fs, yrange=:y, color=RGB(0, .602, 0.973))
+    obw = plot(rect, opacity=.1, label=false)
+    psd!(signal, fs=fs, nfft=10*fs, yrange=:y, color=RGB(0, .602, 0.973))
     title!("99% Occupied Bandwidth : $(round(f[p_index[end]]-f[p_index[1]], digits=2)) Hz")
     ylims!(minimum(y)-5, maximum(y)+5)
 
-    return fft
+
+    sig = plot(t, signal, label=false, color=p_color)
+    xaxis!("Time (s)")
+    yaxis!("Displacement (m)")
+
+
+    display(plot(sig, obw, layout=(2, 1), size=(700, 600), plot_title=p_title))
 end
+
+
+## Question 1.2 =====================================================================================================
+export Butteranalyse
 
 function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2, fc2::Number=50)
     if type == :lowpass
@@ -100,6 +123,10 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2
 
     display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title="Filter order $(order) with fc=$(fc) Hz", size = (1000, 800), left_margin = 5mm))
 end
+
+
+## Question 1.3 =====================================================================================================
+export statisticVar, plotStatVar
 
 function statisticVar(data::Array; p_title::String="")
     feature = zeros(4)
@@ -148,6 +175,10 @@ function plotStatVar(data1, data2, tps; beginning::Int=1, ending::Int=length(dat
     display(plot!(size=(1300, 700), left_margin=5mm, right_margin=5mm))
 end
 
+
+## Question 1.4 =====================================================================================================
+export crosscorr
+
 function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
     if (lims1[2]-lims1[1]) != (lims2[2]-lims2[1])
         if (lims1[2]-lims1[1]) > (lims2[2]-lims2[1])
@@ -175,4 +206,8 @@ function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
     yaxis!("Correlation")
 
     display(plot(p_time_sig, p_cor, p_crosscor, layout=(3, 1), plot_title=p_title, size=(700, 700)))
+end
+
+end
+
 end
