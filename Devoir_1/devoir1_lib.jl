@@ -14,12 +14,12 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
     t = 0:1/fs:(length(opvar[3, :])-1)/fs
 
     parts_end = []
-    global i = 1
+    i::Int = 1
     for sig = t
         if (sig >= val_end[i])
             append!(parts_end, findall(j -> j == sig, t))
             if i < length(val_end)
-                global i += 1
+                i += 1
             else
                 break
             end
@@ -83,7 +83,7 @@ end
 
 
 ## Question 1.2 =====================================================================================================
-function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2, p_title::String="", fc2::Number=50)
+function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; order::Int=2, p_title::String="", fc2::Number=50)
     t = 0:1/fs:(length(signal)-1)/fs
 
     if type == :lowpass
@@ -119,51 +119,53 @@ end
 
 
 ## Question 1.3 =====================================================================================================
-function statisticVar(data::Array; p_title::String="")
-    feature = zeros(4)
-    feature_names = ["Mean", "Standard Deviation", "Kurtosis", "Skewness"]
-
-    feature[1] = mean(data)
-    feature[2] = std(data)
-    feature[3] = kurtosis(data)
-    feature[4] = skewness(data)
-
-    p_hist = histogram(data, color=:blue, label="Histogram", bottom_margin=8mm)
-    xaxis!("Displacement (m)")
-    yaxis!("Number of occurences")
-    title!(p_title)
-    plot!([], color=:green, label="Density Function")
-    density!(twinx(), data, color=:green, lw=2, label=false, yaxis="Probability density")
-    plot!([feature[1]], seriestype="vline", color=:red, ls=:dash, lw=2, label="Mean")
-    plot!([feature[1]-feature[2]/2, feature[1]+feature[2]/2], seriestype="vline", color=:orange, ls=:dot, lw=2, label="Standard Deviation")
-
-    p_txt = plot(grid=false, showaxis=false)
-    it = 1 / length(feature)
-    global j = 1.0
-    for i in 1:1:length(feature)
-        annotate!(.5, j, "$(feature_names[i]) : $(round(feature[i], digits=3))")
-        global j -= it
-    end
-
-    p_stats_var = plot(p_hist, p_txt, layout=@layout[a; b{.3h}])
-    return p_stats_var, feature
+function statisticTab(data::Array)
+    feature = Dict(
+        "Mean"               => mean(data),
+        "Variance"           => var(data),
+        "Standard Deviation" => std(data),
+        "Kurtosis"           => kurtosis(data),
+        "Skewness"           => skewness(data),
+    )
+    return feature
 end
 
-function plotStatVar(data1, data2, tps; beginning::Int=1, ending::Int=length(data1))
-    data1 = data1[beginning:ending]
-    data2 = data2[beginning:ending]
-    tps = tps[beginning:ending]
+function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="")
+    feature = statisticTab(signal[1:segment[1]])
+    tab_features = permutedims(collect(keys(feature)))
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p1 = Highlighter(
+        (data, i, j) -> (i == 1),
+        crayon"yellow"
+    )
 
-    p_sig = plot(tps, data2, label="Vibration", color=:orange, lw=2)
-    plot!(tps, data1, label="Human", color=:blue, lw=2)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
+    feature = statisticTab(signal[segment[1]:segment[2]])
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p2 = Highlighter(
+        (data, i, j) -> (i == 2),
+        crayon"green"
+    )
 
-    p_stats_var1, feature_var1 = statisticVar(data1; p_title="Human")
-    p_stats_var2, feature_var2 = statisticVar(data2; p_title="Vibration")
+    feature = statisticTab(signal[segment[3]:end])
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p3 = Highlighter(
+        (data, i, j) -> (i == 3),
+        crayon"red"
+    )
 
-    plot(p_sig, p_stats_var1, p_stats_var2, layout=@layout([a{.3h}; b c]))
-    display(plot!(size=(1300, 700), left_margin=5mm, right_margin=5mm))
+    pretty_table(
+        tab_features[2:end, :];
+        header          = tab_features[1, :],
+        header_crayon   = crayon"white bg:dark_gray bold",
+        highlighters    = (hl_p1, hl_p2, hl_p3),
+        title           = p_title
+    )
 end
 
 
