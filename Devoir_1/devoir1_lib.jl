@@ -168,6 +168,62 @@ function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/
     )
 end
 
+function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+    if length(f_apply) != 3
+        error("You should choose three functions of statistics")
+    end
+
+    stats_var = fill(undef, (3, 1))
+    mid_l_seg = l_seg / 2
+
+    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
+        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
+        
+        stats_tab = []
+        for fct in f_apply
+            push!(stats_tab, fct(sig))
+        end
+        stats_var = hcat(stats_var, stats_tab)
+    end
+    stats_var = stats_var[:, 2:end]
+    
+    scatter3d(stats_var[1, :],
+              stats_var[2, :],
+              stats_var[3, :],
+              title=p_title,
+              color=p_color,
+              label=false
+    )
+end
+
+function stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+    if length(f_apply) != 3
+        error("You should choose three functions of statistics")
+    end
+
+    stats_var = fill(undef, (3, 1))
+    mid_l_seg = l_seg / 2
+
+    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
+        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
+        
+        stats_tab = []
+        for fct in f_apply
+            push!(stats_tab, fct(sig))
+        end
+        stats_var = hcat(stats_var, stats_tab)
+    end
+    stats_var = stats_var[:, 2:end]
+    
+    scatter3d!(stats_var[1, :],
+               stats_var[2, :],
+               stats_var[3, :],
+               title=p_title,
+               color=p_color,
+               label=false
+    )
+end
+
 
 ## Question 1.4 =====================================================================================================
 function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
