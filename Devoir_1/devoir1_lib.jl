@@ -168,7 +168,9 @@ function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/
     )
 end
 
-function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+
+## Question 1.4 =====================================================================================================
+function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int)
     if length(f_apply) != 3
         error("You should choose three functions of statistics")
     end
@@ -185,72 +187,29 @@ function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::
         end
         stats_var = hcat(stats_var, stats_tab)
     end
-    stats_var = stats_var[:, 2:end]
+    return stats_var[:, 2:end]
+end
+
+function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+    stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d(stats_var[1, :],
               stats_var[2, :],
               stats_var[3, :],
-              title=p_title,
-              color=p_color,
-              label=false
+              title = p_title,
+              color = p_color,
+              label = false
     )
 end
 
-function stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
-    if length(f_apply) != 3
-        error("You should choose three functions of statistics")
-    end
-
-    stats_var = fill(undef, (3, 1))
-    mid_l_seg = l_seg / 2
-
-    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
-        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
-        
-        stats_tab = []
-        for fct in f_apply
-            push!(stats_tab, fct(sig))
-        end
-        stats_var = hcat(stats_var, stats_tab)
-    end
-    stats_var = stats_var[:, 2:end]
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+    stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d!(stats_var[1, :],
                stats_var[2, :],
                stats_var[3, :],
-               title=p_title,
-               color=p_color,
-               label=false
+               title = p_title,
+               color = p_color,
+               label = false
     )
-end
-
-
-## Question 1.4 =====================================================================================================
-function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
-    if (lims1[2]-lims1[1]) != (lims2[2]-lims2[1])
-        if (lims1[2]-lims1[1]) > (lims2[2]-lims2[1])
-            diff = round(((lims1[2]-lims1[1]) - (lims2[2]-lims2[1])) / 2)
-            lims1 = [Int(lims1[1]+diff), Int(lims1[2]-diff)]
-        else
-            diff = round(((lims2[2]-lims2[1]) - (lims1[2]-lims1[1])) / 2)
-            lims2 = [Int(lims2[1]+diff), Int(lims2[2]-diff)]
-        end
-    end
-    
-    p_time_sig = plot(tps[lims1[1]:lims1[2]], data[lims1[1]:lims1[2]], label="Data 1", color=:blue)
-    plot!(tps[lims2[1]:lims2[2]], data[lims2[1]:lims2[2]], label="Data 2", color=:orange)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
-
-    p_cor = plot(xcorr(data[lims1[1]:lims1[2]], data[lims1[1]:lims1[2]]), label="Data 1", color=:blue, lw=2)
-    plot!(xcorr(data[lims2[1]:lims2[2]], data[lims2[1]:lims2[2]]), label="Data 2", color=:orange, lw=2)
-    xaxis!("Lag (s)")
-    yaxis!("Autocorrelation")
-
-    corr = xcorr(data[lims1[1]:lims1[2]], data[lims2[1]:lims2[2]])
-    p_crosscor = plot(corr, label=false, color=:red)
-    xaxis!("Lag (s)")
-    yaxis!("Correlation")
-
-    display(plot(p_time_sig, p_cor, p_crosscor, layout=(3, 1), plot_title=p_title, size=(700, 700)))
 end
