@@ -1,22 +1,25 @@
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots
 using SignalAnalysis, DSP
+using ControlSystemsBase
+using Statistics, Distributions
+
 
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen("poignee1ddl_4.mat")
+    file = matopen(pwd() * "\\Devoir_1\\poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
     t = 0:1/fs:(length(opvar[3, :])-1)/fs
 
     parts_end = []
-    i = 1
+    i::Int = 1
     for sig = t
         if (sig >= val_end[i])
             append!(parts_end, findall(j -> j == sig, t))
             if i < length(val_end)
-                global i += 1
+                i += 1
             else
                 break
             end
@@ -35,12 +38,14 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
         
         return parts_end, t, filtered_humansignal, filtered_vibsignal
     else
-        return parts_end, t
+        return parts_end, t, opvar[3, :]
     end
 end
 
-function obw(var, fs)
-    periodgram = periodogram(var, fs=fs)
+
+## Question 1.1 =====================================================================================================
+function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
+    periodgram = periodogram(signal, fs=fs)
     p = power(periodgram)
     f = freq(periodgram)
 
@@ -62,15 +67,25 @@ function obw(var, fs)
     min = minimum(y)-10
     max = maximum(y)+10
     rect = Shape([f[p_index[1]], f[p_index[1]], f[p_index[end]], f[p_index[end]]], [max, min, min, max])
-    fft = plot(rect, opacity=.1, label=false)
-    psd!(var, fs=fs, nfft=10*fs, yrange=:y, color=RGB(0, .602, 0.973))
+    obw = plot(rect, opacity=.1, label=false)
+    psd!(signal, fs=fs, nfft=10*fs, yrange=:y, color=RGB(0, .602, 0.973))
     title!("99% Occupied Bandwidth : $(round(f[p_index[end]]-f[p_index[1]], digits=2)) Hz")
     ylims!(minimum(y)-5, maximum(y)+5)
 
-    return fft
+
+    sig = plot(t, signal, label=false, color=p_color)
+    xaxis!("Time (s)")
+    yaxis!("Displacement (m)")
+
+
+    display(plot(sig, obw, layout=(2, 1), size=(700, 600), plot_title=p_title))
 end
 
-function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2, fc2::Number=50)
+
+## Question 1.2 =====================================================================================================
+function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; order::Int=2, p_title::String="", fc2::Number=50)
+    t = 0:1/fs:(length(signal)-1)/fs
+
     if type == :lowpass
         filtertype = Lowpass(fc/(fs/2))
     elseif type == :bandpass
@@ -96,83 +111,105 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type; order::Int=2
     plot(t, signal, label="Signal non filtré", linewidth=2)
     xaxis!("Time (s)")
     yaxis!("Displacement (m)")
+    title!("Filter order $(order) with fc=$(fc) Hz")
     f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", linewidth=2, top_margin = 5mm, right_margin = 5mm)
 
-    display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title="Filter order $(order) with fc=$(fc) Hz", size = (1000, 800), left_margin = 5mm))
+    display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title=p_title, size = (1000, 800), left_margin = 5mm))
 end
 
-function statisticVar(data::Array; p_title::String="")
-    feature = zeros(4)
-    feature_names = ["Mean", "Standard Deviation", "Kurtosis", "Skewness"]
 
-    feature[1] = mean(data)
-    feature[2] = std(data)
-    feature[3] = kurtosis(data)
-    feature[4] = skewness(data)
+## Question 1.3 =====================================================================================================
+function statisticTab(data::Array)
+    feature = Dict(
+        "Mean"               => mean(data),
+        "Variance"           => var(data),
+        "Standard Deviation" => std(data),
+        "Kurtosis"           => kurtosis(data),
+        "Skewness"           => skewness(data),
+    )
+    return feature
+end
 
-    p_hist = histogram(data, color=:blue, label="Histogram", bottom_margin=8mm)
-    xaxis!("Displacement (m)")
-    yaxis!("Number of occurences")
-    title!(p_title)
-    plot!([], color=:green, label="Density Function")
-    density!(twinx(), data, color=:green, lw=2, label=false, yaxis="Probability density")
-    plot!([feature[1]], seriestype="vline", color=:red, ls=:dash, lw=2, label="Mean")
-    plot!([feature[1]-feature[2]/2, feature[1]+feature[2]/2], seriestype="vline", color=:orange, ls=:dot, lw=2, label="Standard Deviation")
+function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="")
+    feature = statisticTab(signal[1:segment[1]])
+    tab_features = permutedims(collect(keys(feature)))
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p1 = Highlighter(
+        (data, i, j) -> (i == 1),
+        crayon"yellow"
+    )
 
-    p_txt = plot(grid=false, showaxis=false)
-    it = 1 / length(feature)
-    global j = 1.0
-    for i in 1:1:length(feature)
-        annotate!(.5, j, "$(feature_names[i]) : $(round(feature[i], digits=3))")
-        global j -= it
+    feature = statisticTab(signal[segment[1]:segment[2]])
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p2 = Highlighter(
+        (data, i, j) -> (i == 2),
+        crayon"green"
+    )
+
+    feature = statisticTab(signal[segment[3]:end])
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p3 = Highlighter(
+        (data, i, j) -> (i == 3),
+        crayon"red"
+    )
+
+    pretty_table(
+        tab_features[2:end, :];
+        header          = tab_features[1, :],
+        header_crayon   = crayon"white bg:dark_gray bold",
+        highlighters    = (hl_p1, hl_p2, hl_p3),
+        title           = p_title
+    )
+end
+
+
+## Question 1.4 =====================================================================================================
+function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int)
+    if length(f_apply) != 3
+        error("You should choose three functions of statistics")
     end
 
-    p_stats_var = plot(p_hist, p_txt, layout=@layout[a; b{.3h}])
-    return p_stats_var, feature
-end
+    stats_var = fill(undef, (3, 1))
+    mid_l_seg = l_seg / 2
 
-function plotStatVar(data1, data2, tps; beginning::Int=1, ending::Int=length(data1))
-    data1 = data1[beginning:ending]
-    data2 = data2[beginning:ending]
-    tps = tps[beginning:ending]
-
-    p_sig = plot(tps, data2, label="Vibration", color=:orange, lw=2)
-    plot!(tps, data1, label="Human", color=:blue, lw=2)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
-
-    p_stats_var1, feature_var1 = statisticVar(data1; p_title="Human")
-    p_stats_var2, feature_var2 = statisticVar(data2; p_title="Vibration")
-
-    plot(p_sig, p_stats_var1, p_stats_var2, layout=@layout([a{.3h}; b c]))
-    display(plot!(size=(1300, 700), left_margin=5mm, right_margin=5mm))
-end
-
-function crosscorr(data, tps, lims1::Array, lims2::Array; p_title::String="")
-    if (lims1[2]-lims1[1]) != (lims2[2]-lims2[1])
-        if (lims1[2]-lims1[1]) > (lims2[2]-lims2[1])
-            diff = round(((lims1[2]-lims1[1]) - (lims2[2]-lims2[1])) / 2)
-            lims1 = [Int(lims1[1]+diff), Int(lims1[2]-diff)]
-        else
-            diff = round(((lims2[2]-lims2[1]) - (lims1[2]-lims1[1])) / 2)
-            lims2 = [Int(lims2[1]+diff), Int(lims2[2]-diff)]
+    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
+        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
+        
+        stats_tab = []
+        for fct in f_apply
+            push!(stats_tab, fct(sig))
         end
+        stats_var = hcat(stats_var, stats_tab)
     end
+    return stats_var[:, 2:end]
+end
+
+function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+    stats_var = stats3D(f_apply, signal, l_seg)
     
-    p_time_sig = plot(tps[lims1[1]:lims1[2]], data[lims1[1]:lims1[2]], label="Data 1", color=:blue)
-    plot!(tps[lims2[1]:lims2[2]], data[lims2[1]:lims2[2]], label="Data 2", color=:orange)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
+    scatter3d(stats_var[1, :],
+              stats_var[2, :],
+              stats_var[3, :],
+              title = p_title,
+              color = p_color,
+              label = false
+    )
+end
 
-    p_cor = plot(xcorr(data[lims1[1]:lims1[2]], data[lims1[1]:lims1[2]]), label="Data 1", color=:blue, lw=2)
-    plot!(xcorr(data[lims2[1]:lims2[2]], data[lims2[1]:lims2[2]]), label="Data 2", color=:orange, lw=2)
-    xaxis!("Lag (s)")
-    yaxis!("Autocorrelation")
-
-    corr = xcorr(data[lims1[1]:lims1[2]], data[lims2[1]:lims2[2]])
-    p_crosscor = plot(corr, label=false, color=:red)
-    xaxis!("Lag (s)")
-    yaxis!("Correlation")
-
-    display(plot(p_time_sig, p_cor, p_crosscor, layout=(3, 1), plot_title=p_title, size=(700, 700)))
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+    stats_var = stats3D(f_apply, signal, l_seg)
+    
+    scatter3d!(stats_var[1, :],
+               stats_var[2, :],
+               stats_var[3, :],
+               title = p_title,
+               color = p_color,
+               label = false
+    )
 end
