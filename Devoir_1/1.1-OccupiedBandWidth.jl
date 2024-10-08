@@ -11,6 +11,7 @@ plot(t[begin:parts_end[1]], signal[begin:parts_end[1]], label=false, color=:yell
 plot!(t[parts_end[1]:parts_end[2]], signal[parts_end[1]:parts_end[2]], label=false, color=:green)
 plot!(t[parts_end[2]:parts_end[3]], signal[parts_end[2]:parts_end[3]], label=false, color=:blue)
 plot!(t[parts_end[3]:end], signal[parts_end[3]:end], label=false, color=:red)
+xlims!(0, t[end])
 xaxis!("Time (s)")
 display(yaxis!("Displacement (m)"))
 
