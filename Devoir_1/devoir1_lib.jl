@@ -1,5 +1,5 @@
 using MAT
-using Plots, Plots.PlotMeasures, StatsPlots
+using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
 using SignalAnalysis, DSP
 using ControlSystemsBase
 using Statistics, Distributions
@@ -212,4 +212,20 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
                color = p_color,
                label = false
     )
+end
+
+## Question 2.1 =====================================================================================================
+function plotSFTF(data::Array, t::StepRangeLen, fs::Int)
+    p_time_sig = plot(t, data, label=false, color=:blue)
+    yaxis!("Displacement (m)")
+
+    data_STFT = stft(data, fs; fs=fs, window=hamming)
+    lgth, hght = size(data_STFT)
+    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, 10log10.(abs2.(data_STFT)), colorbar_title="Magnitude (dB)")
+    plot!(ylims=(0, fs/2))
+    xaxis!("Time (s)")
+    yaxis!("Frequency (Hz)")
+
+    plot(p_time_sig, ht_map, layout=@layout[a{.4h}; b])
+    display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
 end
