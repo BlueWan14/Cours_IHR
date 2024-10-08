@@ -214,10 +214,21 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
     )
 end
 
+
+
+
 ## Question 2.1 =====================================================================================================
-function plotSFTF(data::Array, t::StepRangeLen, fs::Int)
-    p_time_sig = plot(t, data, label=false, color=:blue)
+function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[])
+    if segment != []
+        p_time_sig = plot(t[begin:segment[1]], signal[begin:segment[1]], label=false, color=p_colors[1])
+        plot!(t[segment[1]:segment[2]], signal[segment[1]:segment[2]], label=false, color=p_colors[2])
+        plot!(t[segment[2]:segment[3]], signal[segment[2]:segment[3]], label=false, color=p_colors[3])
+        plot!(t[segment[3]:end], signal[segment[3]:end], label=false, color=p_colors[4])
+    else
+        p_time_sig = plot(t, data, label=false, color=:blue)
+    end
     yaxis!("Displacement (m)")
+    xlims!(0, t[end])
 
     data_STFT = stft(data, fs; fs=fs, window=hamming)
     lgth, hght = size(data_STFT)
@@ -226,6 +237,6 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int)
     xaxis!("Time (s)")
     yaxis!("Frequency (Hz)")
 
-    plot(p_time_sig, ht_map, layout=@layout[a{.4h}; b])
+    plot(p_time_sig, plot(grid=false, axis=false), ht_map, layout=@layout[[a b{.02w}]; b{.65h}])
     display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
 end
