@@ -1,7 +1,3 @@
-using MAT
-using Plots, Plots.PlotMeasures
-using DSP
-
 include("devoir1_lib.jl")
 
 
