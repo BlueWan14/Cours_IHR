@@ -1,9 +1,10 @@
+include("install.jl")
+
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
 using SignalAnalysis, DSP
 using ControlSystemsBase
-using Statistics, Distributions
-
+using Distributions
 
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
@@ -126,11 +127,12 @@ function statisticTab(data::Array)
         "Standard Deviation" => std(data),
         "Kurtosis"           => kurtosis(data),
         "Skewness"           => skewness(data),
+        "Energy"             => energy(data)
     )
     return feature
 end
 
-function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="")
+function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
     feature = statisticTab(signal[1:segment[1]])
     tab_features = permutedims(collect(keys(feature)))
     tab_temp = []
