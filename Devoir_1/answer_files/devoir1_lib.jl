@@ -8,7 +8,7 @@ using Distributions
 
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen(pwd() * "\\Devoir_1\\documentation\\poignee1ddl_4.mat")
+    file = matopen("poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
