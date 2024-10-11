@@ -120,19 +120,20 @@ end
 
 
 ## Question 1.3 =====================================================================================================
-function statisticTab(data::Array)
+function statisticTab(data::Array, fs::Number)
     feature = Dict(
         "Mean"               => mean(data),
         "Variance"           => var(data),
         "Standard Deviation" => std(data),
         "Kurtosis"           => kurtosis(data),
         "Skewness"           => skewness(data),
+        "Energy"             => energy(data, fs=fs)
     )
     return feature
 end
 
-function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="")
-    feature = statisticTab(signal[1:segment[1]])
+function printStatisticTab(signal::Vector, segment::Vector; fs::Number=1/length(signal), p_title::String="")
+    feature = statisticTab(signal[1:segment[1]], fs)
     tab_features = permutedims(collect(keys(feature)))
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
@@ -142,7 +143,7 @@ function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/
         crayon"yellow"
     )
 
-    feature = statisticTab(signal[segment[1]:segment[2]])
+    feature = statisticTab(signal[segment[1]:segment[2]], fs)
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
@@ -151,7 +152,7 @@ function printStatisticTab(signal::Vector, segment::Vector; t::StepRangeLen=0:1/
         crayon"green"
     )
 
-    feature = statisticTab(signal[segment[3]:end])
+    feature = statisticTab(signal[segment[3]:end], fs)
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
