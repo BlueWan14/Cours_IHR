@@ -1,9 +1,10 @@
+include("install.jl")
+
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
 using SignalAnalysis, DSP
 using ControlSystemsBase
-using Statistics, Distributions
-
+using Distributions
 
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
