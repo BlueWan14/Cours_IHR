@@ -1,4 +1,4 @@
-include("install.jl")
+# include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
@@ -254,21 +254,29 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
 end
 
 
-function isHuman(f_apply::Dict{Function, Real}, signal::Vector, l_seg::Int)
+function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
     cat = []
     mid_l_seg = l_seg / 2
 
     for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
-        isHuman = true
+        answer = true
         sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
 
         for (fct, lim) in f_apply
-            if fct(sig) < lim
-                isHuman = false
+            if haskey(lim, :inferiorTo)
+                if fct(sig) < get(lim, :inferiorTo, 1.0)
+                    answer = false
+                end
+            elseif haskey(lim, :supperiorTo)
+                if fct(sig) > get(lim, :supperiorTo, 0.0)
+                    answer = false
+                end
+            else
+                error("Symbol should be :inferiorTo or :supperiorTo.")
             end
         end
 
-        push!(cat, Int(isHuman))
+        push!(cat, Int(answer))
     end
 
     return cat
