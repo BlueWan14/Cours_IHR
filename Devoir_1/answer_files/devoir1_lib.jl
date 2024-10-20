@@ -1,4 +1,4 @@
-include("install.jl")
+# include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
@@ -120,20 +120,21 @@ end
 
 
 ## Question 1.3 =====================================================================================================
-function statisticTab(data::Array)
+function statisticTab(data::Array, fs::Real)
     feature = Dict(
         "Mean"               => mean(data),
         "Variance"           => var(data),
         "Standard Deviation" => std(data),
         "Kurtosis"           => kurtosis(data),
         "Skewness"           => skewness(data),
-        "Energy"             => energy(data)
+        "Energy"             => energy(data, fs=fs),
+        "RMS"                => rms(data)
     )
     return feature
 end
 
-function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
-    feature = statisticTab(signal[1:segment[1]])
+function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", fs::Real=1/length(data))
+    feature = statisticTab(signal[1:segment[1]], fs)
     tab_features = permutedims(collect(keys(feature)))
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
@@ -143,7 +144,7 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
         crayon"yellow"
     )
 
-    feature = statisticTab(signal[segment[1]:segment[2]])
+    feature = statisticTab(signal[segment[1]:segment[2]], fs)
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
@@ -152,12 +153,21 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
         crayon"green"
     )
 
-    feature = statisticTab(signal[segment[3]:end])
+    feature = statisticTab(signal[segment[2]:segment[3]], fs)
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
     hl_p3 = Highlighter(
         (data, i, j) -> (i == 3),
+        crayon"blue"
+    )
+
+    feature = statisticTab(signal[segment[3]:end], fs)
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p3 = Highlighter(
+        (data, i, j) -> (i == 4),
         crayon"red"
     )
 
@@ -241,4 +251,34 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
 
     plot(p_time_sig, plot(grid=false, axis=false), ht_map, layout=@layout[[a b{.02w}]; b{.65h}])
     display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
+end
+
+
+
+function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
+    cat = []
+    mid_l_seg = l_seg / 2
+
+    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
+        answer = true
+        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
+
+        for (fct, lim) in f_apply
+            if haskey(lim, :inferiorTo)
+                if fct(sig) < get(lim, :inferiorTo, 1.0)
+                    answer = false
+                end
+            elseif haskey(lim, :supperiorTo)
+                if fct(sig) > get(lim, :supperiorTo, 0.0)
+                    answer = false
+                end
+            else
+                error("Symbol should be :inferiorTo or :supperiorTo.")
+            end
+        end
+
+        push!(cat, Int(answer))
+    end
+
+    return cat
 end
