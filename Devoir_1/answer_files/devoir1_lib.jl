@@ -214,7 +214,7 @@ function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_ti
     )
 end
 
-function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d!(stats_var[1, :],
@@ -222,11 +222,38 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
                stats_var[3, :],
                title = p_title,
                color = p_color,
-               label = false
+               label = false,
+               alpha = p_alpha
     )
 end
 
+function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
+    cat = []
+    mid_l_seg = l_seg / 2
 
+    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
+        answer = true
+        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
+
+        for (fct, lim) in f_apply
+            if haskey(lim, :inferiorTo)
+                if fct(sig) < get(lim, :inferiorTo, 1.0)
+                    answer = false
+                end
+            elseif haskey(lim, :supperiorTo)
+                if fct(sig) > get(lim, :supperiorTo, 0.0)
+                    answer = false
+                end
+            else
+                error("Symbol should be :inferiorTo, :supperiorTo or :both.")
+            end
+        end
+
+        push!(cat, Int(answer))
+    end
+
+    return cat
+end
 
 
 ## Question 2.1 =====================================================================================================
@@ -253,31 +280,3 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
     display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
 end
 
-
-function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
-    cat = []
-    mid_l_seg = l_seg / 2
-
-    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
-        answer = true
-        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
-
-        for (fct, lim) in f_apply
-            if haskey(lim, :inferiorTo)
-                if fct(sig) < get(lim, :inferiorTo, 1.0)
-                    answer = false
-                end
-            elseif haskey(lim, :supperiorTo)
-                if fct(sig) > get(lim, :supperiorTo, 0.0)
-                    answer = false
-                end
-            else
-                error("Symbol should be :inferiorTo or :supperiorTo.")
-            end
-        end
-
-        push!(cat, Int(answer))
-    end
-
-    return cat
-end
