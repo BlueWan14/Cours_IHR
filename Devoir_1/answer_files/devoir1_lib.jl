@@ -214,7 +214,7 @@ function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_ti
     )
 end
 
-function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
     stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d!(stats_var[1, :],
@@ -222,8 +222,7 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
                stats_var[3, :],
                title = p_title,
                color = p_color,
-               label = false,
-               alpha = p_alpha
+               label = false
     )
 end
 
@@ -271,7 +270,9 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
 
     data_STFT = stft(data, fs; fs=fs, window=hamming)
     lgth, hght = size(data_STFT)
-    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, 10log10.(abs2.(data_STFT)), colorbar_title="Magnitude (dB)")
+    mag = 10log10.(abs2.(data_STFT))
+    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, mag,
+                     colorbar_title="Magnitude (dB)", c=:viridis, clim=(-100, maximum(mag)))
     plot!(ylims=(0, fs/2))
     xaxis!("Time (s)")
     yaxis!("Frequency (Hz)")
