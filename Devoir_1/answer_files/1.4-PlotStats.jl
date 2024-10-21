@@ -38,8 +38,18 @@ for i in 21:1:length(cat_signal)-21
     end
 end
 
-# plot(cat_signal[cat_signal .== 1], label=false, color=:yellow)
-# plot!(cat_signal[cat_signal .== 2], label=false, color=:green)
-# plot!(cat_signal[cat_signal .== 0], label=false, color=:blue)
-# plot!(cat_signal[cat_signal .== 3], label=false, color=:red)
-plot(0:t[end]/length(cat_signal):t[end], cat_signal, label=false)
+global i_mem = 1
+t = 0:t[end]/length(cat_signal):t[end]
+colors = [:blue, :yellow, :green, :red]
+
+plot(yrot=-40, size=(600, 400), top_margin=10mm)
+for i in 2:1:length(cat_signal)
+    if (cat_signal[i] != cat_signal[i-1])
+        plot!(t[i_mem:i-1], cat_signal[i_mem:i-1], label=false, color=colors[cat_signal[i-1]+1], lw=3)
+        global i_mem = i
+    end
+end
+yticks!(0:1:3, ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain\net vibratoire"])
+display(title!("Catégorisation du signal"))
+
+# savefig("catSignal_temp.png")
