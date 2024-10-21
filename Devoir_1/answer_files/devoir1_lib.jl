@@ -1,4 +1,4 @@
-include("install.jl")
+# include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
@@ -41,6 +41,23 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
     else
         return parts_end, t, opvar[3, :]
     end
+end
+
+function plotIndice(data::Array{Int}; t_max::Float64=length(data), colors::Array{Symbol}=[:blue, :yellow, :green, :red])
+    global i_mem = 1
+    t = 0:t_max/length(data):t_max
+
+    p = plot(yrot=-40, size=(600, 400), top_margin=10mm)
+    for i in 2:1:length(data)
+        if (data[i] != data[i-1])
+            plot!(t[i_mem:i-1], data[i_mem:i-1], label=false, color=colors[data[i-1]+1], lw=3)
+            global i_mem = i
+        end
+    end
+    yticks!(minimum(data):1:maximum(data), ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain\net vibratoire"])
+    title!("Catégorisation du signal")
+
+    return p
 end
 
 
@@ -120,20 +137,21 @@ end
 
 
 ## Question 1.3 =====================================================================================================
-function statisticTab(data::Array)
+function statisticTab(data::Array, fs::Real)
     feature = Dict(
         "Mean"               => mean(data),
         "Variance"           => var(data),
         "Standard Deviation" => std(data),
         "Kurtosis"           => kurtosis(data),
         "Skewness"           => skewness(data),
-        "Energy"             => energy(data)
+        "Energy"             => energy(data, fs=fs),
+        "RMS"                => rms(data)
     )
     return feature
 end
 
-function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
-    feature = statisticTab(signal[1:segment[1]])
+function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", fs::Real=1/length(data))
+    feature = statisticTab(signal[1:segment[1]], fs)
     tab_features = permutedims(collect(keys(feature)))
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
@@ -143,7 +161,7 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
         crayon"yellow"
     )
 
-    feature = statisticTab(signal[segment[1]:segment[2]])
+    feature = statisticTab(signal[segment[1]:segment[2]], fs)
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
@@ -152,12 +170,21 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="")
         crayon"green"
     )
 
-    feature = statisticTab(signal[segment[3]:end])
+    feature = statisticTab(signal[segment[2]:segment[3]], fs)
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
     hl_p3 = Highlighter(
         (data, i, j) -> (i == 3),
+        crayon"blue"
+    )
+
+    feature = statisticTab(signal[segment[3]:end], fs)
+    tab_temp = []
+    foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
+    tab_features = vcat(tab_features, permutedims(tab_temp))
+    hl_p3 = Highlighter(
+        (data, i, j) -> (i == 4),
         crayon"red"
     )
 
@@ -216,29 +243,90 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
     )
 end
 
+function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
+    cat = []
+    mid_l_seg = l_seg / 2
+
+    for i in 0:1:Int(round((length(signal) - l_seg) / mid_l_seg) - 1)
+        answer = true
+        sig = signal[Int(1+i*mid_l_seg) : Int(l_seg+i*mid_l_seg)]
+
+        for (fct, lim) in f_apply
+            if haskey(lim, :inferiorTo)
+                if fct(sig) < get(lim, :inferiorTo, 1.0)
+                    answer = false
+                end
+            elseif haskey(lim, :supperiorTo)
+                if fct(sig) > get(lim, :supperiorTo, 0.0)
+                    answer = false
+                end
+            else
+                error("Symbol should be :inferiorTo, :supperiorTo or :both.")
+            end
+        end
+
+        push!(cat, Int(answer))
+    end
+
+    return cat
+end
 
 
-
-## Question 2.1 =====================================================================================================
-function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[])
+## Question 2.X =====================================================================================================
+function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
     if segment != []
-        p_time_sig = plot(t[begin:segment[1]], signal[begin:segment[1]], label=false, color=p_colors[1])
-        plot!(t[segment[1]:segment[2]], signal[segment[1]:segment[2]], label=false, color=p_colors[2])
-        plot!(t[segment[2]:segment[3]], signal[segment[2]:segment[3]], label=false, color=p_colors[3])
-        plot!(t[segment[3]:end], signal[segment[3]:end], label=false, color=p_colors[4])
+        p_time_sig = plot(t[begin:segment[1]], data[begin:segment[1]], label=false, color=p_colors[1])
+        plot!(t[segment[1]:segment[2]], data[segment[1]:segment[2]], label=false, color=p_colors[2])
+        plot!(t[segment[2]:segment[3]], data[segment[2]:segment[3]], label=false, color=p_colors[3])
+        plot!(t[segment[3]:end], data[segment[3]:end], label=false, color=p_colors[4])
     else
         p_time_sig = plot(t, data, label=false, color=:blue)
     end
     yaxis!("Displacement (m)")
     xlims!(0, t[end])
 
-    data_STFT = stft(data, fs; fs=fs, window=hamming)
+    data_STFT = stft(data, Int(round(length(data)/l_seg)); fs=fs, window=hamming)
     lgth, hght = size(data_STFT)
-    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, 10log10.(abs2.(data_STFT)), colorbar_title="Magnitude (dB)")
+    mag = 10log10.(abs2.(data_STFT))
+    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, mag,
+                     colorbar_title="Magnitude (dB)", c=:viridis, clim=(-100, maximum(mag)))
     plot!(ylims=(0, fs/2))
     xaxis!("Time (s)")
     yaxis!("Frequency (Hz)")
 
-    plot(p_time_sig, plot(grid=false, axis=false), ht_map, layout=@layout[[a b{.02w}]; b{.65h}])
-    display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
+    plot(p_time_sig, plot(grid=false, axis=false), ht_map,
+         layout     = @layout[[a b{.02w}]; c{.65h}],
+         plot_title = p_title
+    )
+    return plot!(size=(800, 500), left_margin=3mm, right_margin=3mm)
+end
+
+function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Float64=length(data), p_title::String="")
+    data_STFT = stft(data, Int(round(length(data)/l_seg));
+                     fs=fs, window=hamming
+    )
+    lgth, hght = size(data_STFT)
+
+    sig_e = []
+    for i in 1:1:hght
+        e = energy(data_STFT[beginning:ending, i], fs=fs)
+        push!(sig_e, e)
+    end
+
+    return plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title, lw=2)
+end
+
+function correspondTo(data::Array, l_seg::Int, lim::Float64; beginning::Int=1, ending::Int=length(data))
+    data_STFT = stft(data, Int(round(length(data)/l_seg));
+                     fs=fs, window=hamming
+    )
+    lgth, hght = size(data_STFT)
+
+    sig_e = []
+    for i in 1:1:hght
+        e = energy(data_STFT[beginning:ending, i], fs=fs)
+        push!(sig_e, e > lim ? true : false)
+    end
+
+    return sig_e
 end
