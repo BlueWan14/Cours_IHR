@@ -301,6 +301,7 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     return plot!(size=(800, 500), left_margin=3mm, right_margin=3mm)
 end
 
+## Question 2.4 =====================================================================================================
 function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Float64=length(data), p_title::String="")
     data_STFT = stft(data, Int(round(length(data)/l_seg));
                      fs=fs, window=hamming
