@@ -47,4 +47,4 @@ end
 yticks!(0:1:3, ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain\net vibratoire"])
 display(title!("Catégorisation du signal"))
 
-savefig("catSignal_temp.png")
+# savefig("catSignal_temp.png")

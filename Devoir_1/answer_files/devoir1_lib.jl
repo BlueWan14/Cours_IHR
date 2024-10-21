@@ -256,7 +256,7 @@ end
 
 
 ## Question 2.1 =====================================================================================================
-function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[])
+function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
     if segment != []
         p_time_sig = plot(t[begin:segment[1]], signal[begin:segment[1]], label=false, color=p_colors[1])
         plot!(t[segment[1]:segment[2]], signal[segment[1]:segment[2]], label=false, color=p_colors[2])
@@ -277,7 +277,10 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
     xaxis!("Time (s)")
     yaxis!("Frequency (Hz)")
 
-    plot(p_time_sig, plot(grid=false, axis=false), ht_map, layout=@layout[[a b{.02w}]; b{.65h}])
+    plot(p_time_sig, plot(grid=false, axis=false), ht_map,
+         layout     = @layout[[a b{.02w}]; b{.65h}],
+         plot_title = p_title
+    )
     display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
 end
 
