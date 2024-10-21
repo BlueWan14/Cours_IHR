@@ -33,18 +33,4 @@ vibration = Dict(
 )
 cat_signal = isOutOfRange(human, signal, seg_l) .+ 2 .* isOutOfRange(vibration, signal, seg_l)
 
-global i_mem = 1
-t = 0:t[end]/length(cat_signal):t[end]
-colors = [:blue, :yellow, :green, :red]
-
-plot(yrot=-40, size=(600, 400), top_margin=10mm)
-for i in 2:1:length(cat_signal)
-    if (cat_signal[i] != cat_signal[i-1])
-        plot!(t[i_mem:i-1], cat_signal[i_mem:i-1], label=false, color=colors[cat_signal[i-1]+1], lw=3)
-        global i_mem = i
-    end
-end
-yticks!(0:1:3, ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain\net vibratoire"])
-display(title!("Catégorisation du signal"))
-
-# savefig("catSignal_temp.png")
+plotIndice(cat_signal; t_max=t[end])

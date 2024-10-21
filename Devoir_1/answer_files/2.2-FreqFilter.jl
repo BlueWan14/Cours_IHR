@@ -8,13 +8,13 @@ seg_l = 128
 
 parts_end, t, filtered_humansignal, filtered_vibsignal = init(fs, [35.4, 57, 70]; filtered=true, fc_human=fc_human, fc_vib=fc_vib)
 
-htm1 = plotSFTF(filtered_humansignal, t, fs;
+htm1 = plotSFTF(filtered_humansignal, t, fs, seg_l;
                 segment    = parts_end,
                 p_colors   = [:yellow, :green, :blue, :red],
                 p_title    = "STFT du signal humain"
 )
 
-htm2 = plotSFTF(filtered_vibsignal, t, fs;
+htm2 = plotSFTF(filtered_vibsignal, t, fs, seg_l;
                 segment    = parts_end,
                 p_colors   = [:yellow, :green, :blue, :red],
                 p_title    = "STFT du signal vibratoire"

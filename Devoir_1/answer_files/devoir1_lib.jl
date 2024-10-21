@@ -43,6 +43,23 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
     end
 end
 
+function plotIndice(data::Array{Int}; t_max::Float64=length(data), colors::Array{Symbol}=[:blue, :yellow, :green, :red])
+    global i_mem = 1
+    t = 0:t_max/length(data):t_max
+
+    p = plot(yrot=-40, size=(600, 400), top_margin=10mm)
+    for i in 2:1:length(data)
+        if (data[i] != data[i-1])
+            plot!(t[i_mem:i-1], data[i_mem:i-1], label=false, color=colors[data[i-1]+1], lw=3)
+            global i_mem = i
+        end
+    end
+    yticks!(minimum(data):1:maximum(data), ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain\net vibratoire"])
+    title!("Catégorisation du signal")
+
+    return p
+end
+
 
 ## Question 1.1 =====================================================================================================
 function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
@@ -256,7 +273,7 @@ end
 
 
 ## Question 2.X =====================================================================================================
-function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
+function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
     if segment != []
         p_time_sig = plot(t[begin:segment[1]], data[begin:segment[1]], label=false, color=p_colors[1])
         plot!(t[segment[1]:segment[2]], data[segment[1]:segment[2]], label=false, color=p_colors[2])
@@ -268,7 +285,7 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
     yaxis!("Displacement (m)")
     xlims!(0, t[end])
 
-    data_STFT = stft(data, fs; fs=fs, window=hamming)
+    data_STFT = stft(data, Int(round(length(data)/l_seg)); fs=fs, window=hamming)
     lgth, hght = size(data_STFT)
     mag = 10log10.(abs2.(data_STFT))
     ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, mag,
@@ -284,3 +301,32 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
     return plot!(size=(800, 500), left_margin=3mm, right_margin=3mm)
 end
 
+function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Float64=length(data), p_title::String="")
+    data_STFT = stft(data, Int(round(length(data)/l_seg));
+                     fs=fs, window=hamming
+    )
+    lgth, hght = size(data_STFT)
+
+    sig_e = []
+    for i in 1:1:hght
+        e = energy(data_STFT[beginning:ending, i], fs=fs)
+        push!(sig_e, e)
+    end
+
+    return plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title, lw=2)
+end
+
+function correspondTo(data::Array, l_seg::Int, lim::Float64; beginning::Int=1, ending::Int=length(data))
+    data_STFT = stft(data, Int(round(length(data)/l_seg));
+                     fs=fs, window=hamming
+    )
+    lgth, hght = size(data_STFT)
+
+    sig_e = []
+    for i in 1:1:hght
+        e = energy(data_STFT[beginning:ending, i], fs=fs)
+        push!(sig_e, e > lim ? true : false)
+    end
+
+    return sig_e
+end
