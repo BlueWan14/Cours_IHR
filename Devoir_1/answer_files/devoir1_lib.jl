@@ -255,13 +255,13 @@ function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Ve
 end
 
 
-## Question 2.1 =====================================================================================================
+## Question 2.X =====================================================================================================
 function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
     if segment != []
-        p_time_sig = plot(t[begin:segment[1]], signal[begin:segment[1]], label=false, color=p_colors[1])
-        plot!(t[segment[1]:segment[2]], signal[segment[1]:segment[2]], label=false, color=p_colors[2])
-        plot!(t[segment[2]:segment[3]], signal[segment[2]:segment[3]], label=false, color=p_colors[3])
-        plot!(t[segment[3]:end], signal[segment[3]:end], label=false, color=p_colors[4])
+        p_time_sig = plot(t[begin:segment[1]], data[begin:segment[1]], label=false, color=p_colors[1])
+        plot!(t[segment[1]:segment[2]], data[segment[1]:segment[2]], label=false, color=p_colors[2])
+        plot!(t[segment[2]:segment[3]], data[segment[2]:segment[3]], label=false, color=p_colors[3])
+        plot!(t[segment[3]:end], data[segment[3]:end], label=false, color=p_colors[4])
     else
         p_time_sig = plot(t, data, label=false, color=:blue)
     end
@@ -278,9 +278,9 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
     yaxis!("Frequency (Hz)")
 
     plot(p_time_sig, plot(grid=false, axis=false), ht_map,
-         layout     = @layout[[a b{.02w}]; b{.65h}],
+         layout     = @layout[[a b{.02w}]; c{.65h}],
          plot_title = p_title
     )
-    display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
+    return plot!(size=(800, 500), left_margin=3mm, right_margin=3mm)
 end
 
