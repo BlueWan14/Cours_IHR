@@ -8,7 +8,7 @@ using Distributions
 
 
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen("poignee1ddl_4.mat")
+    file = matopen("/home/pacem/Documents/INGE/S9/IHR/Devoir_1/Cours_IHR/Devoir_1/answer_files/poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
@@ -243,10 +243,6 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
     )
 end
 
-<<<<<<< HEAD
-
-
-
 ## Question 2.1 =====================================================================================================
 function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[])
     if segment != []
@@ -272,9 +268,6 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_c
 end
 
 
-
-=======
->>>>>>> 095a213ffed8a3f40cb00b5d88b74d51d937d568
 function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
     cat = []
     mid_l_seg = l_seg / 2

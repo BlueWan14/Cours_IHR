@@ -17,4 +17,4 @@ display(yaxis!("Déplacement (m)"))
 
 obw(signal[begin:parts_end[1]], fs; t=t[begin:parts_end[1]], p_title="Mouvements Humain sans Vibrations", p_color=:yellow)
 obw(signal[parts_end[1]:parts_end[2]], fs; t=t[parts_end[1]:parts_end[2]], p_title="Vibrations sans mouvements Humain", p_color=:green)
-obw(signal[parts_end[3]:end], fs; t=t[parts_end[3]:end], p_title="Mouvements Humain sans Vibrations", p_color=:red)
+obw(signal[parts_end[3]:end], fs; t=t[parts_end[3]:end], p_title="Mouvements Humain avec Vibrations", p_color=:red)

@@ -12,7 +12,7 @@ parts_end, t, signal = init(fs, [35.4, 57, 70])
 Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans la valeur a 0Hz")
 
 # ## No human signal ===================================================================
-Butteranalyse(signal, fc_human, fs, :highpass; p_title="Humain sans signial")
+Butteranalyse(signal, fc_human, fs, :highpass; p_title="Sans signial Humain ")
 
 # ## No sensor noise ===================================================================
 Butteranalyse(signal, fc_vib, fs, :lowpass; p_title="Sans le bruit des capteurs")
