@@ -1,5 +1,3 @@
-using Plots
-
 include("devoir1_lib.jl")
 
 
@@ -31,6 +29,6 @@ vibration = Dict(
     fct[2] => Dict(:supperiorTo => 0.4),
     fct[3] => Dict(:supperiorTo => 4.48e-3)
 )
-cat_signal = isOutOfRange(human, signal, seg_l) .+ 2 .* isOutOfRange(vibration, signal, seg_l)
+cat_sig_temp = isOutOfRange(human, signal, seg_l) .+ 2 .* isOutOfRange(vibration, signal, seg_l)
 
-plotIndice(cat_signal; t_max=t[end])
+plotIndice(cat_sig_temp; t_max=t[end])

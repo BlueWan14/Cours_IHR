@@ -310,12 +310,12 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     yaxis!("Displacement (m)")
     xlims!(0, t[end])
 
-    data_STFT = stft(data, Int(round(length(data)/l_seg)); fs=fs, window=hamming)
+    data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)
     lgth, hght = size(data_STFT)
     mag = 10log10.(abs2.(data_STFT))
-    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth, mag,
-                     colorbar_title="Magnitude (dB)", c=:viridis, clim=(-100, maximum(mag)))
-    plot!(ylims=(0, fs/2))
+
+    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth-1, mag,
+                     colorbar_title="Magnitude (dB)", c=:viridis, clim=(-(lgth-1), maximum(mag)))
     xaxis!("Time (s)")
     yaxis!("Frequency (Hz)")
 
@@ -326,12 +326,13 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     return plot!(size=(800, 500), left_margin=3mm, right_margin=3mm)
 end
 
+## Question 2.4 =====================================================================================================
 function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Float64=length(data), p_title::String="")
-    data_STFT = stft(data, Int(round(length(data)/l_seg));
+    data_STFT = stft(data, l_seg, div(l_seg, 2);
                      fs=fs, window=hamming
     )
     lgth, hght = size(data_STFT)
-
+    
     sig_e = []
     for i in 1:1:hght
         e = energy(data_STFT[beginning:ending, i], fs=fs)
@@ -342,7 +343,7 @@ function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=lengt
 end
 
 function correspondTo(data::Array, l_seg::Int, lim::Float64; beginning::Int=1, ending::Int=length(data))
-    data_STFT = stft(data, Int(round(length(data)/l_seg));
+    data_STFT = stft(data, l_seg, div(l_seg, 2);
                      fs=fs, window=hamming
     )
     lgth, hght = size(data_STFT)
