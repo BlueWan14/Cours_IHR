@@ -1,5 +1,3 @@
-using Plots
-
 include("devoir1_lib.jl")
 
 
