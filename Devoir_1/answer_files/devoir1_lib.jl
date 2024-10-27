@@ -1,4 +1,4 @@
-# include("install.jl")
+include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
@@ -29,7 +29,7 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
 
     if filtered
         if fc_human == 0.0 && fc_vib == 0.0
-            return error("Cut frequency aren't select.")
+            return error("Cut frequencies aren't select.")
         end
 
         HumanFilter = digitalfilter(Bandpass(.1/(fs/2), fc_human/(fs/2)), Butterworth(order))
@@ -87,13 +87,15 @@ function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/f
     rect = Shape([f[p_index[1]], f[p_index[1]], f[p_index[end]], f[p_index[end]]], [max, min, min, max])
     obw = plot(rect, opacity=.1, label=false)
     psd!(signal, fs=fs, nfft=10*fs, yrange=:y, color=RGB(0, .602, 0.973))
-    title!("99% Occupied Bandwidth : $(round(f[p_index[end]]-f[p_index[1]], digits=2)) Hz")
+    title!("99% de l'occupation de la bande passante : $(round(f[p_index[end]]-f[p_index[1]], digits=2)) Hz")
     ylims!(minimum(y)-5, maximum(y)+5)
+    xaxis!("Fréquence (Hz)")
+    yaxis!("Densité spectrale (dB/Hz)")
 
 
     sig = plot(t, signal, label=false, color=p_color)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
+    xaxis!("Temps (s)")
+    yaxis!("Déplacement (m)")
 
 
     display(plot(sig, obw, layout=(2, 1), size=(700, 600), plot_title=p_title))
@@ -121,15 +123,15 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; orde
     mag, phase, w = bode(filt_sys)
     plot(w./(2pi), 20*log10.(mag[:][:][:]), label=false, color=:blue, y_guidefontcolor=:blue)
     plot!(twinx(), w./(2pi), phase[:][:][:], label=false, color=:red, y_guidefontcolor=:red)
-    f1 = plot!(xlabel=["Frequency [Hz]" ""], ylabel=["Magnitude (dB)" "Phase (deg)"], right_margin = 10mm)
+    f1 = plot!(xlabel=["Fréquence (Hz)" ""], ylabel=["Amplitude (dB)" "Phase (deg)"], right_margin = 10mm)
 
     pzmap(filt_sys, hz=true, title="")
-    f2 = plot!(xlabel="Real", ylabel="Imaginary", right_margin = 5mm)
+    f2 = plot!(xlabel="Réels", ylabel="Imaginaires", right_margin = 5mm)
     
     plot(t, signal, label="Signal non filtré", linewidth=2)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
-    title!("Filter order $(order) with fc=$(fc) Hz")
+    xaxis!("Temps (s)")
+    yaxis!("Déplacement (m)")
+    title!("Filtre d'ordre $(order) avec fc=$(fc) Hz")
     f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", linewidth=2, top_margin = 5mm, right_margin = 5mm)
 
     display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title=p_title, size = (1000, 800), left_margin = 5mm))
@@ -139,18 +141,18 @@ end
 ## Question 1.3 =====================================================================================================
 function statisticTab(data::Array, fs::Real)
     feature = Dict(
-        "Mean"               => mean(data),
-        "Variance"           => var(data),
-        "Standard Deviation" => std(data),
-        "Kurtosis"           => kurtosis(data),
-        "Skewness"           => skewness(data),
-        "Energy"             => energy(data, fs=fs),
-        "RMS"                => rms(data)
+        "Moyenne (m)"            => mean(data),
+        "Variance (m^2)"         => var(data),
+        "Déviation Standard (m)" => std(data),
+        "Kurtosis"               => kurtosis(data),
+        "Skewness"               => skewness(data),
+        "Energie (dB)"           => pow2db(energy(data, fs=fs)),
+        "RMS (m)"                => rms(data)
     )
     return feature
 end
 
-function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", fs::Real=1/length(data))
+function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", fs::Real=1/length(signal))
     feature = statisticTab(signal[1:segment[1]], fs)
     tab_features = permutedims(collect(keys(feature)))
     tab_temp = []
@@ -282,7 +284,7 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     else
         p_time_sig = plot(t, data, label=false, color=:blue)
     end
-    yaxis!("Displacement (m)")
+    yaxis!("Déplacement (m)")
     xlims!(0, t[end])
 
     data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)
@@ -290,9 +292,9 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     mag = 10log10.(abs2.(data_STFT))
 
     ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth-1, mag,
-                     colorbar_title="Magnitude (dB)", c=:viridis, clim=(-(lgth-1), maximum(mag)))
-    xaxis!("Time (s)")
-    yaxis!("Frequency (Hz)")
+                     colorbar_title="Amplitude (dB)", c=:viridis, clim=(-(lgth-1), maximum(mag)))
+    xaxis!("Temps (s)")
+    yaxis!("Fréquence (Hz)")
 
     plot(p_time_sig, plot(grid=false, axis=false), ht_map,
          layout     = @layout[[a b{.02w}]; c{.65h}],
@@ -311,13 +313,18 @@ function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=lengt
     sig_e = []
     for i in 1:1:hght
         e = energy(data_STFT[beginning:ending, i], fs=fs)
-        push!(sig_e, e)
+        push!(sig_e, pow2db(e))
     end
 
-    return plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title, lw=2)
+    p = plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title)
+    xaxis!("Temps (s)")
+    yaxis!("Energie (dB)")
+    ylims!(-70, maximum(sig_e))
+
+    return p
 end
 
-function correspondTo(data::Array, l_seg::Int, lim::Float64; beginning::Int=1, ending::Int=length(data))
+function correspondTo(data::Array, l_seg::Int, lim::Int; beginning::Int=1, ending::Int=length(data))
     data_STFT = stft(data, l_seg, div(l_seg, 2);
                      fs=fs, window=hamming
     )
@@ -326,7 +333,7 @@ function correspondTo(data::Array, l_seg::Int, lim::Float64; beginning::Int=1, e
     sig_e = []
     for i in 1:1:hght
         e = energy(data_STFT[beginning:ending, i], fs=fs)
-        push!(sig_e, e > lim ? true : false)
+        push!(sig_e, pow2db(e) > lim ? true : false)
     end
 
     return sig_e
