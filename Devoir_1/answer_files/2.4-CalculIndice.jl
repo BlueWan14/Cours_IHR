@@ -5,8 +5,8 @@ fs = 500
 fc_human = 3.91
 fc_vib = 24.1
 seg_l = 128
-lim_e_human = .0108
-lim_e_vib = .000438
+lim_e_human = -19
+lim_e_vib = -38
 
 parts_end, t, filtered_humansignal, filtered_vibsignal = init(fs, [35.4, 57, 70]; filtered=true, fc_human=fc_human, fc_vib=fc_vib)
 
