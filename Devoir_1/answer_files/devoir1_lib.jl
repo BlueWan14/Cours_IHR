@@ -1,4 +1,4 @@
-# include("install.jl")
+include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
