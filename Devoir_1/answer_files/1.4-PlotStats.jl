@@ -4,14 +4,14 @@ include("devoir1_lib.jl")
 fs = 500
 seg_l = 128
 
-parts_end, t, signal = init(fs, [35.4, 57, 70])
+parts_end, t, signal = init(fs, [3.7, 23.7, 24.8, 35.1, 56.5, 70.1, 96.7])
 
 fct = [kurtosis, rms, (x -> pow2db(energy(x, fs=fs)))]
 
-p1 = plot_stats3D(fct, signal[1:parts_end[1]], seg_l; p_color=:yellow)
-plot_stats3D!(fct, signal[parts_end[1]:parts_end[2]], seg_l; p_color=:green)
-plot_stats3D!(fct, signal[parts_end[2]:parts_end[3]], seg_l)
-plot_stats3D!(fct, signal[parts_end[3]:end], seg_l;
+p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow)
+plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green)
+plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l)
+plot_stats3D!(fct, signal[parts_end[6]:parts_end[7]], seg_l;
               p_color=:red,
               p_title="Répartition du signal"
 )
@@ -34,4 +34,10 @@ vibration = Dict(
 )
 cat_sig_temp = isOutOfRange(human, signal, seg_l) .+ 2 .* isOutOfRange(vibration, signal, seg_l)
 
-plotIndice(cat_sig_temp; t_max=t[end])
+display(plotIndice(cat_sig_temp; t_max=t[end]))
+
+
+map!(x -> div(x, Int(seg_l/2)), parts_end, parts_end)
+pushfirst!(parts_end, 1)
+push!(parts_end, length(cat_sig_temp))
+plotConfMatrix(cat_sig_temp, parts_end, [0, 1, 0, 1, 2, 0, 3, 0])

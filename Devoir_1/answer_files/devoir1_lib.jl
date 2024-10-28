@@ -1,4 +1,4 @@
-include("install.jl")
+# include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
@@ -58,6 +58,65 @@ function plotIndice(data::Array{Int}; t_max::Float64=length(data), colors::Array
     title!("Catégorisation du signal")
 
     return p
+end
+
+function plotConfMatrix(data::Array{Int}, parts::Array, cat_corr::Array{Int})
+    right = []
+    wrong = []
+    for i in 1:1:length(parts)-1
+        for seg in data[parts[i]:parts[i+1]]
+            if seg != cat_corr[i]
+                push!(wrong, [seg, cat_corr[i]])
+            else
+                push!(right, seg)
+            end
+        end
+    end
+
+
+    tx_rec = round(length(right) / length(data) * 100.0, digits=2)
+    print("Le taux de reconnaissance du programme est de ")
+    printstyled("$(tx_rec) %"; bold=true)
+    println(".")
+
+
+    println("La table de confusion a la forme :")
+    confMatrix = hcat(
+        ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain et vibratoire"],
+        [count(x -> x==0, right), count(x -> (x[1]==0 && x[2]==1), wrong), count(x -> (x[1]==0 && x[2]==2), wrong), count(x -> (x[1]==0 && x[2]==3), wrong)],
+        [count(x -> (x[1]==1 && x[2]==0), wrong), count(x -> x==1, right), count(x -> (x[1]==1 && x[2]==2), wrong), count(x -> (x[1]==1 && x[2]==3), wrong)],
+        [count(x -> (x[1]==2 && x[2]==0), wrong), count(x -> (x[1]==2 && x[2]==1), wrong), count(x -> x==2, right), count(x -> (x[1]==2 && x[2]==3), wrong)],
+        [count(x -> (x[1]==3 && x[2]==0), wrong), count(x -> (x[1]==3 && x[2]==1), wrong), count(x -> (x[1]==3 && x[2]==2), wrong), count(x -> x==3, right)]
+    )
+    header = ["",
+            "Pas de signal",
+            "Signal humain",
+            "Signal vibratoire",
+            "Signal humain et vibratoire"
+    ]
+    header_crayon = [crayon"bold",
+                    crayon"blue bold",
+                    crayon"yellow bold",
+                    crayon"green bold",
+                    crayon"red bold"
+    ]
+    global hl = ()
+    for k in 1:1:length(header)-1
+        global hl = (
+            Highlighter((confMatrix, i, j) -> (i == k && j == 1),
+                        header_crayon[k+1]
+            ),
+            hl ...
+        )
+    end
+    pretty_table(confMatrix;
+                header        = header,
+                header_crayon = [crayon"bold", crayon"blue bold", crayon"yellow bold", crayon"green bold", crayon"red bold"],
+                highlighters  = hl,
+                alignment     = :c
+    )
+
+
 end
 
 
@@ -185,7 +244,7 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", 
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
-    hl_p3 = Highlighter(
+    hl_p4 = Highlighter(
         (data, i, j) -> (i == 4),
         crayon"red"
     )
@@ -194,7 +253,7 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", 
         tab_features[2:end, :];
         header          = tab_features[1, :],
         header_crayon   = crayon"white bg:dark_gray bold",
-        highlighters    = (hl_p1, hl_p2, hl_p3),
+        highlighters    = (hl_p1, hl_p2, hl_p3, hl_p4),
         title           = p_title
     )
 end
