@@ -6,7 +6,8 @@ Status: DONE
 Description:
 Ce script effectue une analyse temporelle-fréquentielle de deux signaux filtrés représentant respectivement le mouvement humain et les vibrations. 
 La Transformée de Fourier à court terme (STFT) est appliquée sur chaque signal filtré pour observer la distribution des fréquences dans le temps. 
-Chaque segment du signal est affiché avec une couleur différente pour faciliter l'interprétation des phases. Les deux STFT sont ensuite affichées côte à côte pour comparaison.
+Chaque segment du signal est affiché avec une couleur différente pour faciliter l'interprétation des phases. 
+Les deux STFT sont ensuite affichées côte à côte pour comparaison.
 =#
 
 # Inclusion des fonctions utilitaires

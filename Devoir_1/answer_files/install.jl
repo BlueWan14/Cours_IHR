@@ -4,7 +4,9 @@ Authors: Erwan MAWART
 Date: 28/10/2024
 Status: DONE 
 Description:
-Ce script vérifie et installe les bibliothèques nécessaires pour l'exécution du projet. Il utilise le package manager de Julia (Pkg) pour installer les dépendances si elles ne sont pas déjà présentes sur le système. Cette automatisation garantit que toutes les bibliothèques requises sont disponibles avant d'exécuter le code principal.
+Ce script vérifie et installe les bibliothèques nécessaires pour l'exécution du projet. 
+Il utilise le package manager de Julia (Pkg) pour installer les dépendances si elles ne sont pas déjà présentes sur le système. 
+Cette automatisation garantit que toutes les bibliothèques requises sont disponibles avant d'exécuter le code principal.
 =#
 
 using Pkg
