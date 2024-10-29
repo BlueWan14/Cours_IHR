@@ -14,19 +14,12 @@ et un indice est calculé pour catégoriser les phases de mouvement et de vibrat
 include("devoir1_lib.jl")
 
 # Paramètres d'analyse
-fs = 500                 # Fréquence d'échantillonnage (Hz)
-fc_human = 3.91          # Fréquence de coupure pour le signal humain (Hz)
-fc_vib = 24.1            # Fréquence de coupure pour le signal vibratoire (Hz)
-seg_l = 128              # Longueur de la fenêtre pour l'analyse en segments
-lim_e_human = 0.0108     # Seuil d'énergie pour détecter la présence de signal humain
-lim_e_vib = 0.000438     # Seuil d'énergie pour détecter les vibrations
-
-fs = 500
-fc_human = 3.91
-fc_vib = 24.1
-seg_l = 128
-lim_e_human = -19
-lim_e_vib = -38
+fs = 500            # Fréquence d'échantillonnage (Hz)
+fc_human = 3.91     # Fréquence de coupure pour le signal humain (Hz)
+fc_vib = 24.1       # Fréquence de coupure pour le signal vibratoire (Hz)
+seg_l = 128         # Longueur de la fenêtre pour l'analyse en segments
+lim_e_human = -19   # Seuil d'énergie pour détecter la présence de signal humain
+lim_e_vib = -38     # Seuil d'énergie pour détecter les vibrations
 
 parts_end, t, filtered_humansignal, filtered_vibsignal = init(fs, [35.4, 57, 70]; filtered=true, fc_human=fc_human, fc_vib=fc_vib)
 
