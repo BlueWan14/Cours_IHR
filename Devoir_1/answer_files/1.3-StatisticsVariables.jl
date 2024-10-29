@@ -1,8 +1,7 @@
 #= 
 Title: 1.3-statisticsVariables
 Authors: Erwan MAWART
-Documentation: Benjamin PELLIEUx  
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX 
 Status: DONE 
 Description:
 Ce script analyse statistiquement deux signaux filtrés représentant le mouvement humain et les vibrations. 

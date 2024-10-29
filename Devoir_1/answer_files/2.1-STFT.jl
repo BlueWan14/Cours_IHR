@@ -1,8 +1,7 @@
 #= 
 Title: 2.1-STFT
 Authors: Erwan MAWART 
-Documentation: Benjamin PELLIEUx 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Ce script effectue une analyse temporelle-fréquentielle d'un signal non filtré en utilisant la Transformée de Fourier à court terme (STFT). 

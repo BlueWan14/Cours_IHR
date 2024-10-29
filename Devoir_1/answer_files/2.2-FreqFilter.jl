@@ -1,8 +1,7 @@
 #=
 Title: 2.2-FreqFilter 
 Authors: Erwan MAWART 
-Documentation: Benjamin PELLIEUx 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Ce script effectue une analyse temporelle-fréquentielle de deux signaux filtrés représentant respectivement le mouvement humain et les vibrations. 

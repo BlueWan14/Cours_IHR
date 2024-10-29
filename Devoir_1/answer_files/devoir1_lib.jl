@@ -1,10 +1,7 @@
-include("install.jl")
-
 #= 
 Title: devoir1_lib
 Authors: Erwan MAWART
-Documentation: Benjamin PELLIEUx 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Cette bibliothèque fournit des outils pour analyser les dynamiques fréquentielles et temporelles de signaux représentant 
@@ -12,6 +9,9 @@ des mouvements humains et des vibrations.
 Elle inclut des fonctions pour la segmentation, le filtrage, l'analyse statistique, 
 et la représentation graphique de données dans le contexte de l'interaction humain-robot.
 =#
+
+include("install.jl")
+
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables

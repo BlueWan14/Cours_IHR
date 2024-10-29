@@ -1,8 +1,7 @@
 #= 
 Title: 1.1-OccupiedBandWidth
 Authors: Erwan MAWART 
-Documentation: Benjamin PELLIEUx 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Ce script analyse un signal de déplacement dans le temps, représentant différentes phases de mouvement et de vibrations dans un système humain-robot. 

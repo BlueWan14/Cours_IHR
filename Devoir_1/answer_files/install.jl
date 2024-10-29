@@ -1,7 +1,7 @@
 #= 
 Title: Script d'installation des bibliothèques
 Authors: Erwan MAWART 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Ce script vérifie et installe les bibliothèques nécessaires pour l'exécution du projet. 

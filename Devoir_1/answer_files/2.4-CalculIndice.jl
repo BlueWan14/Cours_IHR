@@ -1,8 +1,7 @@
 #= 
 Title: 2.4-Calculindice
 Authors: Erwan MAWART 
-Documentation: Benjamin PELLIEUx 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Ce script réalise une analyse temporelle-fréquentielle de signaux filtrés, représentant respectivement le mouvement humain et les vibrations. 

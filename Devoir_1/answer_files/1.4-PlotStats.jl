@@ -1,8 +1,7 @@
 #= 
 Title: 1.4-PlotStats
 Authors: Erwan MAWART 
-Documentation: Benjamin PELLIEUx 
-Date: 28/10/2024
+Documentation: Benjamin PELLIEUX
 Status: DONE 
 Description:
 Ce script analyse un signal en utilisant des métriques statistiques pour segmenter et classer les phases de mouvement humain et de vibrations. 

@@ -2,6 +2,7 @@
 
 ## Auteurs
 - **Erwan MAWART**
+- **Benjamin PELLIEUX**
 - **Date** : 28/10/2024
 
 ## Description
