@@ -2,7 +2,8 @@ include("install.jl")
 
 #= 
 Title: devoir1_lib
-Authors: Erwan MAWART 
+Authors: Erwan MAWART
+Documentation: Benjamin PELLIEUx 
 Date: 28/10/2024
 Status: DONE 
 Description:
@@ -20,7 +21,7 @@ using Distributions
 
 # Fonction d'initialisation : charge le signal et applique des filtres si nécessaire
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen(pwd() * "\\Devoir_1\\documentation\\poignee1ddl_4.mat")
+    file = matopen("/home/pacem/Documents/INGE/S9/IHR/Devoir_1/Cours_IHR/Devoir_1/answer_files/poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
@@ -166,7 +167,7 @@ function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/f
     xaxis!("Temps (s)")
     yaxis!("Vitesse (m/s)")
 
-    display(plot(sig, obw_plot, layout=(2, 1), size=(700, 600), plot_title=p_title))
+    display(plot(sig, obw, layout=(2, 1), size=(700, 600), plot_title=p_title))
 end
 
 # Fonction pour analyser un signal avec un filtre Butterworth
