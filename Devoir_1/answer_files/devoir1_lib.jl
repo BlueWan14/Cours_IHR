@@ -1,4 +1,4 @@
-# include("install.jl")
+include("install.jl")
 
 using MAT
 using Plots, Plots.PlotMeasures, StatsPlots, PrettyTables
@@ -154,7 +154,7 @@ function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/f
 
     sig = plot(t, signal, label=false, color=p_color)
     xaxis!("Temps (s)")
-    yaxis!("Déplacement (m)")
+    yaxis!("Vitesse (m/s)")
 
 
     display(plot(sig, obw, layout=(2, 1), size=(700, 600), plot_title=p_title))
@@ -189,7 +189,7 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; orde
     
     plot(t, signal, label="Signal non filtré", linewidth=2)
     xaxis!("Temps (s)")
-    yaxis!("Déplacement (m)")
+    yaxis!("Vitesse (m/s)")
     title!("Filtre d'ordre $(order) avec fc=$(fc) Hz")
     f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", linewidth=2, top_margin = 5mm, right_margin = 5mm)
 
@@ -200,13 +200,13 @@ end
 ## Question 1.3 =====================================================================================================
 function statisticTab(data::Array, fs::Real)
     feature = Dict(
-        "Moyenne (m)"            => mean(data),
-        "Variance (m^2)"         => var(data),
-        "Déviation Standard (m)" => std(data),
-        "Kurtosis"               => kurtosis(data),
-        "Skewness"               => skewness(data),
-        "Energie (dB)"           => pow2db(energy(data, fs=fs)),
-        "RMS (m)"                => rms(data)
+        "Moyenne (m/s)"            => mean(data),
+        "Variance ((m/s)^2)"       => var(data),
+        "Déviation Standard (m/s)" => std(data),
+        "Kurtosis"                 => kurtosis(data),
+        "Skewness"                 => skewness(data),
+        "Energie (dB)"             => pow2db(energy(data, fs=fs)),
+        "RMS (m/s)"                => rms(data)
     )
     return feature
 end
@@ -345,7 +345,7 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     else
         p_time_sig = plot(t, data, label=false, color=:blue)
     end
-    yaxis!("Déplacement (m)")
+    yaxis!("Vitesse (m/s)")
     xlims!(0, t[end])
 
     data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)

@@ -11,7 +11,7 @@ plot!(t[parts_end[2]:parts_end[3]], signal[parts_end[2]:parts_end[3]], label=fal
 plot!(t[parts_end[3]:end], signal[parts_end[3]:end], label=false, color=:red)
 xlims!(0, t[end])
 xaxis!("Temps (s)")
-display(yaxis!("Déplacement (m)"))
+display(yaxis!("Vitesse (m/s)"))
 
 obw(signal[begin:parts_end[1]], fs; t=t[begin:parts_end[1]], p_title="Mouvements Humain sans Vibrations", p_color=:yellow)
 obw(signal[parts_end[1]:parts_end[2]], fs; t=t[parts_end[1]:parts_end[2]], p_title="Vibrations sans mouvements Humain", p_color=:green)
