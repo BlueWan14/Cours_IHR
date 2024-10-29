@@ -37,7 +37,7 @@ plot!(t[parts_end[3]:end], signal[parts_end[3]:end], label=false, color=:red)
 # Configuration de l'affichage des limites de l'axe des x et ajout du titre de l'axe
 xlims!(0, t[end])
 xaxis!("Temps (s)")
-display(yaxis!("Déplacement (m)"))
+display(yaxis!("Vitesse (m/s)"))
 
 # Analyse de la bande passante pour chaque segment avec `obw` (Occupied Bandwidth)
 # Cette fonction calcule la bande de fréquences occupée pour chaque segment du signal

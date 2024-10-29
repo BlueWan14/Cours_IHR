@@ -24,15 +24,11 @@ fc_vib = 24.1    # Fréquence de coupure pour isoler les vibrations (en atténua
 # La fonction `init` retourne les indices de fin des segments (parts_end), le vecteur temps (t) et le signal de déplacement (signal).
 parts_end, t, signal = init(fs, [35.4, 57, 70])
 
-## Suppression de la composante à 0 Hz (Biais DC) ========================================
-# Application d'un filtre passe-haut pour supprimer les composantes à 0 Hz, éliminant ainsi le biais DC.
-# Cela permet de ne conserver que les variations dynamiques dans le signal.
-Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans la valeur a 0Hz")
+## No 0Hz value ========================================================================
+Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans composante continue")
 
-## Suppression du signal humain ==========================================================
-# Application d'un filtre passe-haut pour supprimer les fréquences associées au mouvement humain (< 6 Hz).
-# Cela permet d’isoler les vibrations en supprimant les mouvements volontaires de l'opérateur.
-Butteranalyse(signal, fc_human, fs, :highpass; p_title="Sans signial Humain")
+# ## No human signal ===================================================================
+Butteranalyse(signal, fc_human, fs, :highpass; p_title="Sans signal humain")
 
 ## Suppression du bruit des capteurs =====================================================
 # Application d'un filtre passe-bas pour atténuer le bruit de capteur en supprimant les fréquences supérieures à 24.1 Hz.
@@ -43,9 +39,6 @@ Butteranalyse(signal, fc_vib, fs, :lowpass; p_title="Sans le bruit des capteurs"
 # Application de filtres passe-bande de différents ordres pour isoler les composantes du signal.
 # Chaque ordre de filtre est appliqué pour observer son impact sur la séparation des signaux humain et vibratoire.
 for ord in [1, 2, 3, 5, 10]
-    # Filtrage pour isoler uniquement le signal humain en filtrant entre 0.1 et 6 Hz
-    Butteranalyse(signal, fc_0Hz, fc2=fc_human, fs, :bandpass, order=ord; p_title="Uniquement le signal Humain")
-    
-    # Filtrage pour isoler uniquement les vibrations en filtrant entre 6 et 24.1 Hz
-    Butteranalyse(signal, fc_human, fc2=fc_vib, fs, :bandpass, order=ord; p_title="Uniquement les Vibrations")
+    Butteranalyse(signal, fc_0Hz, fc2=fc_human, fs, :bandpass, order=ord; p_title="Signal humain uniquement")
+    Butteranalyse(signal, fc_human, fc2=fc_vib, fs, :bandpass, order=ord; p_title="Vibrations uniquement")
 end

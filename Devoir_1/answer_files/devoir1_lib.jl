@@ -1,4 +1,4 @@
-# include("install.jl")
+include("install.jl")
 
 #= 
 Title: devoir1_lib
@@ -20,7 +20,7 @@ using Distributions
 
 # Fonction d'initialisation : charge le signal et applique des filtres si nécessaire
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen("/home/pacem/Documents/INGE/S9/IHR/Devoir_1/Cours_IHR/Devoir_1/answer_files/poignee1ddl_4.mat")
+    file = matopen(pwd() * "\\Devoir_1\\documentation\\poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
@@ -71,7 +71,67 @@ function plotIndice(data::Array{Int}; t_max::Float64=length(data), colors::Array
     return p
 end
 
-# Calcul et affichage de la bande passante occupée à 99 % d'énergie
+function plotConfMatrix(data::Array{Int}, parts::Array, cat_corr::Array{Int})
+    right = []
+    wrong = []
+    for i in 1:1:length(parts)-1
+        for seg in data[parts[i]:parts[i+1]-1]
+            if seg == cat_corr[i]
+                push!(right, seg)
+            else
+                push!(wrong, [seg, cat_corr[i]])
+            end
+        end
+    end
+
+
+    tx_rec = round(length(right) / length(data) * 100.0, digits=2)
+    print("Le taux de reconnaissance du programme est de ")
+    printstyled("$(tx_rec) %"; bold=true)
+    println(".")
+
+    
+    println("La table de confusion a la forme :")
+    confMatrix = hcat(
+        ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain et vibratoire"],
+        [count(x -> x==0, right), count(x -> (x[1]==0 && x[2]==1), wrong), count(x -> (x[1]==0 && x[2]==2), wrong), count(x -> (x[1]==0 && x[2]==3), wrong)],
+        [count(x -> (x[1]==1 && x[2]==0), wrong), count(x -> x==1, right), count(x -> (x[1]==1 && x[2]==2), wrong), count(x -> (x[1]==1 && x[2]==3), wrong)],
+        [count(x -> (x[1]==2 && x[2]==0), wrong), count(x -> (x[1]==2 && x[2]==1), wrong), count(x -> x==2, right), count(x -> (x[1]==2 && x[2]==3), wrong)],
+        [count(x -> (x[1]==3 && x[2]==0), wrong), count(x -> (x[1]==3 && x[2]==1), wrong), count(x -> (x[1]==3 && x[2]==2), wrong), count(x -> x==3, right)]
+    )
+    header = ["",
+            "Pas de signal",
+            "Signal humain",
+            "Signal vibratoire",
+            "Signal humain et vibratoire"
+    ]
+    header_crayon = [crayon"bold",
+                    crayon"blue bold",
+                    crayon"yellow bold",
+                    crayon"green bold",
+                    crayon"red bold"
+    ]
+    global hl = ()
+    for k in 1:1:length(header)-1
+        global hl = (
+            Highlighter((confMatrix, i, j) -> (i == k && j == 1),
+                        header_crayon[k+1]
+            ),
+            hl ...
+        )
+    end
+    pretty_table(confMatrix;
+                header        = header,
+                header_crayon = [crayon"bold", crayon"blue bold", crayon"yellow bold", crayon"green bold", crayon"red bold"],
+                highlighters  = hl,
+                alignment     = :c
+    )
+
+
+end
+
+
+## Question 1.1 =====================================================================================================
 function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
     periodgram = periodogram(signal, fs=fs)
     p = power(periodgram)
@@ -91,14 +151,20 @@ function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/f
     sort!(p_index)
 
     y = pow2db.(p)
-    rect = Shape([f[p_index[1]], f[p_index[1]], f[p_index[end]], f[p_index[end]]], [maximum(y)+10, minimum(y)-10, minimum(y)-10, maximum(y)+10])
-    obw_plot = plot(rect, opacity=.1, label=false)
-    psd!(signal, fs=fs, nfft=10*fs)
-    title!("99% Occupied Bandwidth : $(round(f[p_index[end]]-f[p_index[1]], digits=2)) Hz")
+    min = minimum(y)-10
+    max = maximum(y)+10
+    rect = Shape([f[p_index[1]], f[p_index[1]], f[p_index[end]], f[p_index[end]]], [max, min, min, max])
+    obw = plot(rect, opacity=.1, label=false)
+    psd!(signal, fs=fs, nfft=10*fs, yrange=:y, color=RGB(0, .602, 0.973))
+    title!("99% de l'occupation de la bande passante : $(round(f[p_index[end]]-f[p_index[1]], digits=2)) Hz")
+    ylims!(minimum(y)-5, maximum(y)+5)
+    xaxis!("Fréquence (Hz)")
+    yaxis!("Densité spectrale (dB/Hz)")
+
 
     sig = plot(t, signal, label=false, color=p_color)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
+    xaxis!("Temps (s)")
+    yaxis!("Vitesse (m/s)")
 
     display(plot(sig, obw_plot, layout=(2, 1), size=(700, 600), plot_title=p_title))
 end
@@ -121,17 +187,18 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; orde
     ButterFilter = digitalfilter(filtertype, Butterworth(order))
     filt_sys = tf(ButterFilter, 1/fs)
     mag, phase, w = bode(filt_sys)
-    plot(w./(2pi), 20*log10.(mag[:][:][:]), label=false)
-    plot!(twinx(), w./(2pi), phase[:][:][:], label=false)
-    f1 = plot!(xlabel=["Frequency [Hz]" ""], ylabel=["Magnitude (dB)" "Phase (deg)"])
+    plot(w./(2pi), 20*log10.(mag[:][:][:]), label=false, color=:blue, y_guidefontcolor=:blue)
+    plot!(twinx(), w./(2pi), phase[:][:][:], label=false, color=:red, y_guidefontcolor=:red)
+    f1 = plot!(xlabel=["Fréquence (Hz)" ""], ylabel=["Amplitude (dB)" "Phase (deg)"], right_margin = 10mm)
 
     pzmap(filt_sys, hz=true, title="")
-    f2 = plot!(xlabel="Real", ylabel="Imaginary")
+    f2 = plot!(xlabel="Réels", ylabel="Imaginaires", right_margin = 5mm)
     
     plot(t, signal, label="Signal non filtré", linewidth=2)
-    xaxis!("Time (s)")
-    yaxis!("Displacement (m)")
-    f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré")
+    xaxis!("Temps (s)")
+    yaxis!("Vitesse (m/s)")
+    title!("Filtre d'ordre $(order) avec fc=$(fc) Hz")
+    f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", linewidth=2, top_margin = 5mm, right_margin = 5mm)
 
     display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title=p_title, size=(1000, 800)))
 end
@@ -139,19 +206,18 @@ end
 # Génération d'un tableau de statistiques
 function statisticTab(data::Array, fs::Real)
     feature = Dict(
-        "Mean"               => mean(data),
-        "Variance"           => var(data),
-        "Standard Deviation" => std(data),
-        "Kurtosis"           => kurtosis(data),
-        "Skewness"           => skewness(data),
-        "Energy"             => energy(data, fs=fs),
-        "RMS"                => rms(data)
+        "Moyenne (m/s)"            => mean(data),
+        "Variance ((m/s)^2)"       => var(data),
+        "Déviation Standard (m/s)" => std(data),
+        "Kurtosis"                 => kurtosis(data),
+        "Skewness"                 => skewness(data),
+        "Energie (dB)"             => pow2db(energy(data, fs=fs)),
+        "RMS (m/s)"                => rms(data)
     )
     return feature
 end
 
-# Affichage d'un tableau de statistiques pour les segments du signal
-function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", fs::Real=1/length(data))
+function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", fs::Real=1/length(signal))
     feature = statisticTab(signal[1:segment[1]], fs)
     tab_features = permutedims(collect(keys(feature)))
     tab_temp = []
@@ -175,13 +241,16 @@ function printStatisticTab(signal::Vector, segment::Vector; p_title::String="", 
     tab_temp = []
     foreach(x -> push!(tab_temp, get(feature, x, 0.0)), tab_features[1, :])
     tab_features = vcat(tab_features, permutedims(tab_temp))
-    hl_p3 = Highlighter((data, i, j) -> (i == 4), crayon"red")
+    hl_p4 = Highlighter(
+        (data, i, j) -> (i == 4),
+        crayon"red"
+    )
 
     pretty_table(
         tab_features[2:end, :],
         header          = tab_features[1, :],
         header_crayon   = crayon"white bg:dark_gray bold",
-        highlighters    = (hl_p1, hl_p2, hl_p3),
+        highlighters    = (hl_p1, hl_p2, hl_p3, hl_p4),
         title           = p_title
     )
 end
@@ -204,43 +273,32 @@ function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int)
     return stats_var[:, 2:end]
 end
 
-# Fonction pour afficher les statistiques en 3D
-function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
-    scatter3d(stats_var[1, :], stats_var[2, :], stats_var[3, :], title=p_title, color=p_color, label=false)
+    
+    scatter3d(stats_var[1, :],
+              stats_var[2, :],
+              stats_var[3, :],
+              title = p_title,
+              color = p_color,
+              alpha = p_alpha,
+              label = false
+    )
 end
 
-# Fonction pour ajouter des statistiques 3D à un graphique existant
-function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
-    scatter3d!(stats_var[1, :], stats_var[2, :], stats_var[3, :], title=p_title, color=p_color, label=false)
+    
+    scatter3d!(stats_var[1, :],
+               stats_var[2, :],
+               stats_var[3, :],
+               title = p_title,
+               color = p_color,
+               alpha = p_alpha,
+               label = false
+    )
 end
 
-## Question 2.1 =====================================================================================================
-# Fonction pour afficher la Transformée de Fourier à Court Terme (STFT) d'un signal avec des segments colorés
-function plotSFTF(data::Array, t::StepRangeLen, fs::Int; segment::Vector=[], p_colors::Vector{Symbol}=[])
-    if !isempty(segment)
-        p_time_sig = plot(t[begin:segment[1]], data[begin:segment[1]], label=false, color=p_colors[1])
-        for i in 2:length(segment)
-            plot!(t[segment[i-1]:segment[i]], data[segment[i-1]:segment[i]], label=false, color=p_colors[i])
-        end
-    else
-        p_time_sig = plot(t, data, label=false, color=:blue)
-    end
-    yaxis!("Déplacement (m)")
-    xlims!(0, t[end])
-
-    data_STFT = stft(data, fs=fs, window=hamming)
-    ht_map = heatmap(0:t[end]/size(data_STFT, 2):t[end], 0:1:size(data_STFT, 1), 10log10.(abs2.(data_STFT)), colorbar_title="Magnitude (dB)")
-    plot!(ylims=(0, fs/2))
-    xaxis!("Temps (s)")
-    yaxis!("Fréquence (Hz)")
-
-    plot(p_time_sig, plot(grid=false, axis=false), ht_map, layout=@layout[[a b{.02w}]; b{.65h}])
-    display(plot!(size=(800, 500), left_margin=3mm, right_margin=3mm))
-end
-
-# Fonction pour vérifier si les valeurs d'un segment sont hors des seuils définis
 function isOutOfRange(f_apply::Dict{Function, Dict{Symbol, Float64}}, signal::Vector, l_seg::Int)
     cat = []
     mid_l_seg = l_seg / 2
@@ -264,7 +322,7 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     else
         p_time_sig = plot(t, data, label=false, color=:blue)
     end
-    yaxis!("Déplacement (m)")
+    yaxis!("Vitesse (m/s)")
     xlims!(0, t[end])
 
     data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)
@@ -273,21 +331,51 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     xaxis!("Temps (s)")
     yaxis!("Fréquence (Hz)")
 
-    plot(p_time_sig, plot(grid=false, axis=false), ht_map, layout=@layout[[a b{.02w}]; c{.65h}], plot_title=p_title)
+    ht_map = heatmap(0:t[end]/hght:t[end], 0:1:lgth-1, mag,
+                     colorbar_title="Amplitude (dB)", c=:viridis, clim=(-(lgth-1), maximum(mag)))
+    xaxis!("Temps (s)")
+    yaxis!("Fréquence (Hz)")
+
+    plot(p_time_sig, plot(grid=false, axis=false), ht_map,
+         layout     = @layout[[a b{.02w}]; c{.65h}],
+         plot_title = p_title
+    )
     return plot!(size=(800, 500), left_margin=3mm, right_margin=3mm)
 end
 
 ## Question 2.4 =====================================================================================================
 # Fonction pour tracer l'énergie calculée sur chaque segment de la STFT
 function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Float64=length(data), p_title::String="")
-    data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)
-    sig_e = [energy(data_STFT[beginning:ending, i]) for i in 1:size(data_STFT, 2)]
-    return plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title, lw=2)
+    data_STFT = stft(data, l_seg, div(l_seg, 2);
+                     fs=fs, window=hamming
+    )
+    lgth, hght = size(data_STFT)
+    
+    sig_e = []
+    for i in 1:1:hght
+        e = energy(data_STFT[beginning:ending, i], fs=fs)
+        push!(sig_e, pow2db(e))
+    end
+
+    p = plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title)
+    xaxis!("Temps (s)")
+    yaxis!("Energie (dB)")
+    ylims!(-70, maximum(sig_e))
+
+    return p
 end
 
-# Fonction pour vérifier si l'énergie d'un segment dépasse une limite
-function correspondTo(data::Array, l_seg::Int, lim::Float64; beginning::Int=1, ending::Int=length(data))
-    data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)
-    sig_e = [energy(data_STFT[beginning:ending, i]) > lim for i in 1:size(data_STFT, 2)]
+function correspondTo(data::Array, l_seg::Int, lim::Int; beginning::Int=1, ending::Int=length(data))
+    data_STFT = stft(data, l_seg, div(l_seg, 2);
+                     fs=fs, window=hamming
+    )
+    lgth, hght = size(data_STFT)
+
+    sig_e = []
+    for i in 1:1:hght
+        e = energy(data_STFT[beginning:ending, i], fs=fs)
+        push!(sig_e, pow2db(e) > lim ? true : false)
+    end
+
     return sig_e
 end

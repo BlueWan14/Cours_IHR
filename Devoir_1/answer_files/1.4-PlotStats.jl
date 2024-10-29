@@ -16,47 +16,42 @@ include("devoir1_lib.jl")
 fs = 500         # Fréquence d'échantillonnage (Hz)
 seg_l = 128      # Longueur de la fenêtre de segmentation pour l'analyse statistique
 
-# Initialisation du signal et segmentation
-# La fonction `init` retourne les indices de fin des segments (parts_end), le vecteur temps (t) et le signal de déplacement (signal).
-parts_end, t, signal = init(fs, [35.4, 57, 70])
+fs = 500
+seg_l = 128
 
-# Fonctions statistiques utilisées pour l'analyse des segments
-# - `kurtosis` : Mesure de la pointe (peakedness) de la distribution.
-# - `rms` : Valeur quadratique moyenne, indiquant l'amplitude moyenne.
-# - `energy` : Quantité d'énergie du signal sur une fenêtre donnée.
-fct = [kurtosis, rms, (x -> energy(x, fs=fs))]
+parts_end, t, signal = init(fs, [3.7, 23.7, 24.8, 35.1, 56.5, 70.1, 96.7])
 
-# Fonctions statistiques spécifiques pour l'analyse des vibrations
-# - `std` : Écart-type, indiquant la dispersion.
-# - `energy` et `kurtosis` sont également utilisés pour les vibrations.
-fctVib = [std, (x -> energy(x, fs=fs)), kurtosis]
+fct = [kurtosis, rms, (x -> pow2db(energy(x, fs=fs)))]
 
-# Visualisation 3D des statistiques pour chaque segment du signal
-# Chaque segment est coloré différemment : jaune, vert, bleu (par défaut), et rouge.
-p1 = plot_stats3D(fct, signal[1:parts_end[1]], seg_l, p_color=:yellow)
-plot_stats3D!(fct, signal[parts_end[1]:parts_end[2]], seg_l, p_color=:green)
-plot_stats3D!(fct, signal[parts_end[2]:parts_end[3]], seg_l)
-plot_stats3D!(fct, signal[parts_end[3]:end], seg_l, p_title="Variable statistics", p_color=:red)
-plot!(camera = (-60, 30))
+p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow)
+plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green)
+plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l)
+plot_stats3D!(fct, signal[parts_end[6]:parts_end[7]], seg_l;
+              p_color = :red,
+              p_alpha = .4,
+              p_title = "Répartition du signal"
+)
+plot!(camera = (-50, 25))
 xaxis!("Kurtosis")
-yaxis!("RMS")
-zaxis!("Energie")
-display(plot!(size = (600, 600)))
+yaxis!("RMS (m/s)")
+zaxis!("Energie (dB)")
+zlims!(-200, 0)
+display(plot!(size = (500, 500)))
 
 # Définition des seuils de classification pour le signal humain
 # Chaque fonction est associée à une condition supérieure ou inférieure pour définir les caractéristiques du signal humain.
 human = Dict(
-    fct[1] => Dict(:supperiorTo => 13.0),    # Kurtosis supérieur à 13.0
-    fct[2] => Dict(:inferiorTo  => 0.001),   # RMS inférieur à 0.001
-    fct[3] => Dict(:inferiorTo  => 4.8e-4)   # Énergie inférieure à 4.8e-4
+    fct[1] => Dict(:supperiorTo => 1.0),
+    fct[2] => Dict(:inferiorTo  => 0.045),
+    fct[3] => Dict(:inferiorTo  => -40.0)
 )
 
 # Définition des seuils de classification pour les vibrations
 # Chaque fonction est associée à une condition supérieure pour identifier les caractéristiques des vibrations.
 vibration = Dict(
-    fct[1] => Dict(:supperiorTo => 1.0),     # Kurtosis supérieur à 1.0
-    fct[2] => Dict(:supperiorTo => 0.4),     # RMS supérieur à 0.4
-    fct[3] => Dict(:supperiorTo => 4.48e-3)  # Énergie supérieur à 4.48e-3
+    fct[1] => Dict(:supperiorTo => 1.0),
+    fct[2] => Dict(:supperiorTo => 0.12),
+    fct[3] => Dict(:inferiorTo  => -55.0)
 )
 
 # Catégorisation du signal en fonction des seuils définis
@@ -65,6 +60,10 @@ vibration = Dict(
 # - Les segments correspondant aux vibrations reçoivent une valeur de 2.
 cat_sig_temp = isOutOfRange(human, signal, seg_l) .+ 2 .* isOutOfRange(vibration, signal, seg_l)
 
-# Visualisation de l'indice de catégorisation sur le temps
-# `plotIndice` affiche la catégorisation des segments du signal dans le temps.
-plotIndice(cat_sig_temp; t_max=t[end])
+display(plotIndice(cat_sig_temp; t_max=t[end]))
+
+
+map!(x -> div(x, Int(seg_l/2)), parts_end, parts_end)
+pushfirst!(parts_end, 1)
+push!(parts_end, length(cat_sig_temp)+1)
+plotConfMatrix(cat_sig_temp, parts_end, [0, 1, 0, 1, 2, 0, 3, 0])

@@ -21,8 +21,13 @@ seg_l = 128              # Longueur de la fenêtre pour l'analyse en segments
 lim_e_human = 0.0108     # Seuil d'énergie pour détecter la présence de signal humain
 lim_e_vib = 0.000438     # Seuil d'énergie pour détecter les vibrations
 
-# Initialisation et filtrage des signaux
-# La fonction `init` charge le signal, le segmente et applique un filtrage pour isoler les composantes du mouvement humain et des vibrations.
+fs = 500
+fc_human = 3.91
+fc_vib = 24.1
+seg_l = 128
+lim_e_human = -19
+lim_e_vib = -38
+
 parts_end, t, filtered_humansignal, filtered_vibsignal = init(fs, [35.4, 57, 70]; filtered=true, fc_human=fc_human, fc_vib=fc_vib)
 
 # Calcul de l'énergie du signal humain
