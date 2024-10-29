@@ -21,7 +21,7 @@ using Distributions
 
 # Fonction d'initialisation : charge le signal et applique des filtres si nécessaire
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    file = matopen("/home/pacem/Documents/INGE/S9/IHR/Devoir_1/Cours_IHR/Devoir_1/answer_files/poignee1ddl_4.mat")
+    file = matopen(pwd() * "\\Devoir_1\\documentation\\poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
 
