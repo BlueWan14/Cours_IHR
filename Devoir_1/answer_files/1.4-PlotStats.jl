@@ -18,7 +18,7 @@ plot_stats3D!(fct, signal[parts_end[6]:parts_end[7]], seg_l;
 )
 plot!(camera = (-50, 25))
 xaxis!("Kurtosis")
-yaxis!("RMS (m)")
+yaxis!("RMS (m/s)")
 zaxis!("Energie (dB)")
 zlims!(-200, 0)
 display(plot!(size = (500, 500)))
