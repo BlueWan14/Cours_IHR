@@ -39,5 +39,5 @@ display(plotIndice(cat_sig_temp; t_max=t[end]))
 
 map!(x -> div(x, Int(seg_l/2)), parts_end, parts_end)
 pushfirst!(parts_end, 1)
-push!(parts_end, length(cat_sig_temp))
+push!(parts_end, length(cat_sig_temp)+1)
 plotConfMatrix(cat_sig_temp, parts_end, [0, 1, 0, 1, 2, 0, 3, 0])

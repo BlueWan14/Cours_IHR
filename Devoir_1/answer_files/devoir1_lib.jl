@@ -64,11 +64,11 @@ function plotConfMatrix(data::Array{Int}, parts::Array, cat_corr::Array{Int})
     right = []
     wrong = []
     for i in 1:1:length(parts)-1
-        for seg in data[parts[i]:parts[i+1]]
-            if seg != cat_corr[i]
-                push!(wrong, [seg, cat_corr[i]])
-            else
+        for seg in data[parts[i]:parts[i+1]-1]
+            if seg == cat_corr[i]
                 push!(right, seg)
+            else
+                push!(wrong, [seg, cat_corr[i]])
             end
         end
     end
@@ -79,7 +79,7 @@ function plotConfMatrix(data::Array{Int}, parts::Array, cat_corr::Array{Int})
     printstyled("$(tx_rec) %"; bold=true)
     println(".")
 
-
+    
     println("La table de confusion a la forme :")
     confMatrix = hcat(
         ["Pas de signal", "Signal humain", "Signal vibratoire", "Signal humain et vibratoire"],
