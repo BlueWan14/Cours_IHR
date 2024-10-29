@@ -1,6 +1,7 @@
 #= 
 Title: 2.4-Calculindice
 Authors: Erwan MAWART 
+Documentation: Benjamin PELLIEUx 
 Date: 28/10/2024
 Status: DONE 
 Description:

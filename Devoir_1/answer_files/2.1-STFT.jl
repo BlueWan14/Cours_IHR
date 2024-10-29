@@ -1,6 +1,7 @@
 #= 
 Title: 2.1-STFT
 Authors: Erwan MAWART 
+Documentation: Benjamin PELLIEUx 
 Date: 28/10/2024
 Status: DONE 
 Description:

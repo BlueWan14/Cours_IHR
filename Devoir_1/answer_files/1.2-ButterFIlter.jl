@@ -1,6 +1,7 @@
 #= 
 Title: 1.2-ButterFilter
 Authors: Erwan MAWART 
+Documentation: Benjamin PELLIEUx 
 Date: 28/10/2024
 Status: DONE 
 Description:
