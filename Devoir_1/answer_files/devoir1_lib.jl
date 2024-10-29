@@ -280,7 +280,7 @@ function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int)
     return stats_var[:, 2:end]
 end
 
-function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d(stats_var[1, :],
@@ -288,11 +288,12 @@ function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_ti
               stats_var[3, :],
               title = p_title,
               color = p_color,
+              alpha = p_alpha,
               label = false
     )
 end
 
-function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue)
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d!(stats_var[1, :],
@@ -300,6 +301,7 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
                stats_var[3, :],
                title = p_title,
                color = p_color,
+               alpha = p_alpha,
                label = false
     )
 end

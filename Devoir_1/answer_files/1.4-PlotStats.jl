@@ -12,8 +12,9 @@ p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow
 plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green)
 plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l)
 plot_stats3D!(fct, signal[parts_end[6]:parts_end[7]], seg_l;
-              p_color=:red,
-              p_title="Répartition du signal"
+              p_color = :red,
+              p_alpha = .4,
+              p_title = "Répartition du signal"
 )
 plot!(camera = (-50, 25))
 xaxis!("Kurtosis")
