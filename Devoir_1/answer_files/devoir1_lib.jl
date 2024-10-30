@@ -21,6 +21,7 @@ using Distributions
 
 # Fonction d'initialisation : charge le signal et applique des filtres si nécessaire
 function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
+    
     file = matopen(pwd() * "\\Devoir_1\\documentation\\poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
@@ -326,7 +327,9 @@ function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Ve
     yaxis!("Vitesse (m/s)")
     xlims!(0, t[end])
 
+    
     data_STFT = stft(data, l_seg, div(l_seg, 2); fs=fs, window=hamming)
+    lgth, hght = size(data_STFT)
     mag = 10log10.(abs2.(data_STFT))
     ht_map = heatmap(0:t[end]/size(data_STFT, 2):t[end], 0:1:size(data_STFT, 1)-1, mag, colorbar_title="Magnitude (dB)", c=:viridis, clim=(-(size(data_STFT, 1)-1), maximum(mag)))
     xaxis!("Temps (s)")
