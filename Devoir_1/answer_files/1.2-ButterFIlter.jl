@@ -9,13 +9,13 @@ fc_vib = 24.1
 parts_end, t, signal = init(fs, [35.4, 57, 70])
 
 ## No 0Hz value ========================================================================
-Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans composante continue")
+Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans composante continue", evan=false)
 
 # ## No human signal ===================================================================
-Butteranalyse(signal, fc_human, fs, :highpass; p_title="Sans signal humain")
+Butteranalyse(signal, fc_0Hz, fs, :bandstop; fc2=fc_human, p_title="Sans signal humain", evan=false)
 
 # ## No sensor noise ===================================================================
-Butteranalyse(signal, fc_vib, fs, :lowpass; p_title="Sans le bruit des capteurs")
+Butteranalyse(signal, fc_vib, fs, :lowpass; p_title="Sans le bruit des capteurs", evan=false)
 
 # ## Lowpass Filter to reduce noise ====================================================
 for ord in [1, 2, 3, 5, 10]

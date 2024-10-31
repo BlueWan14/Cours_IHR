@@ -2,7 +2,7 @@ include("devoir1_lib.jl")
 
 
 fs = 500
-fc_human = 3.91
+fc_human = 6
 fc_vib = 24.1
 seg_l = 128
 

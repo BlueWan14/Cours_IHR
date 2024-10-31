@@ -8,13 +8,14 @@ parts_end, t, signal = init(fs, [3.7, 23.7, 24.8, 35.1, 56.5, 70.1, 96.7])
 
 fct = [kurtosis, rms, (x -> pow2db(energy(x, fs=fs)))]
 
-p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow)
-plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green)
-plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l)
+p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow, p_label = "Mouvements humains")
+plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green, p_label = "Vibrations")
+plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l, p_label = "Aucune activité")
 plot_stats3D!(fct, signal[parts_end[6]:parts_end[7]], seg_l;
               p_color = :red,
               p_alpha = .4,
-              p_title = "Répartition du signal"
+              p_title = "Répartition du signal",
+              p_label = "Mouvements humains avec vibrations"
 )
 plot!(camera = (-50, 25))
 xaxis!("Kurtosis")
@@ -34,6 +35,7 @@ vibration = Dict(
     fct[3] => Dict(:inferiorTo  => -55.0)
 )
 cat_sig_temp = isOutOfRange(human, signal, seg_l) .+ 2 .* isOutOfRange(vibration, signal, seg_l)
+
 
 display(plotIndice(cat_sig_temp; t_max=t[end]))
 
