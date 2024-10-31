@@ -13,9 +13,10 @@ Les deux STFT sont ensuite affichées côte à côte pour comparaison.
 # Inclusion des fonctions utilitaires
 include("devoir1_lib.jl")
 
+
 # Paramètres de fréquence et de segmentation
 fs = 500         # Fréquence d'échantillonnage (Hz)
-fc_human = 3.91  # Fréquence de coupure pour le signal humain (Hz)
+fc_human = 6     # Fréquence de coupure pour le signal humain (Hz)
 fc_vib = 24.1    # Fréquence de coupure pour le signal vibratoire (Hz)
 seg_l = 128      # Longueur de la fenêtre pour la STFT
 

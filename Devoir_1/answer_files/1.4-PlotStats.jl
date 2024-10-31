@@ -29,13 +29,14 @@ fct = [kurtosis, rms, (x -> pow2db(energy(x, fs=fs)))]
 
 # Visualisation 3D des statistiques par segment de signal
 # Chaque segment est coloré différemment pour permettre une comparaison visuelle.
-p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow)
-plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green)
-plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l)
+p1 = plot_stats3D(fct, signal[parts_end[1]:parts_end[4]], seg_l; p_color=:yellow, p_label = "Mouvements humains")
+plot_stats3D!(fct, signal[parts_end[4]:parts_end[5]], seg_l; p_color=:green, p_label = "Vibrations")
+plot_stats3D!(fct, signal[parts_end[5]:parts_end[6]], seg_l, p_label = "Aucune activité")
 plot_stats3D!(fct, signal[parts_end[6]:parts_end[7]], seg_l;
               p_color = :red,
               p_alpha = .4,
-              p_title = "Répartition du signal"
+              p_title = "Répartition du signal",
+              p_label = "Mouvements humains avec vibrations"
 )
 plot!(camera = (-50, 25))
 xaxis!("Kurtosis")
@@ -47,9 +48,9 @@ display(plot!(size = (500, 500)))
 # Définition des seuils de classification pour le signal humain
 # Les seuils sont établis pour chaque fonction statistique afin d'identifier les segments de mouvement humain.
 human = Dict(
-    fct[1] => Dict(:supperiorTo => 1.0),       # Kurtosis supérieur à 1.0
-    fct[2] => Dict(:inferiorTo  => 0.045),     # RMS inférieur à 0.045
-    fct[3] => Dict(:inferiorTo  => -40.0)      # Énergie inférieure à -40 dB
+    fct[1] => Dict(:supperiorTo => 1.0),
+    fct[2] => Dict(:inferiorTo  => 0.045),
+    fct[3] => Dict(:inferiorTo  => -40.0)
 )
 
 # Définition des seuils de classification pour les vibrations

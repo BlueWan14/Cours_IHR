@@ -15,11 +15,11 @@ include("devoir1_lib.jl")
 
 # Paramètres d'analyse
 fs = 500            # Fréquence d'échantillonnage (Hz)
-fc_human = 3.91     # Fréquence de coupure pour le signal humain (Hz)
+fc_human = 6     # Fréquence de coupure pour le signal humain (Hz)
 fc_vib = 24.1       # Fréquence de coupure pour le signal vibratoire (Hz)
 seg_l = 128         # Longueur de la fenêtre pour l'analyse en segments
 lim_e_human = -19   # Seuil d'énergie pour détecter la présence de signal humain
-lim_e_vib = -38     # Seuil d'énergie pour détecter les vibrations
+lim_e_vib = -50     # Seuil d'énergie pour détecter les vibrations
 
 parts_end, t, filtered_humansignal, filtered_vibsignal = init(fs, [35.4, 57, 70]; filtered=true, fc_human=fc_human, fc_vib=fc_vib)
 

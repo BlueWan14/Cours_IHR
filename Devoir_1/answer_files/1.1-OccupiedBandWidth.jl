@@ -23,21 +23,23 @@ parts_end, t, signal = init(fs, [35.4, 57, 70])
 
 # Plot du signal temporel avec segmentation par couleur
 # Segment 1 : Mouvement humain sans vibrations (en jaune)
-plot(t[begin:parts_end[1]], signal[begin:parts_end[1]], label=false, color=:yellow)
+plot(t[begin:parts_end[1]], signal[begin:parts_end[1]], label=false, color=:yellow, lw=2)
 
 # Segment 2 : Vibrations sans mouvement humain (en vert)
-plot!(t[parts_end[1]:parts_end[2]], signal[parts_end[1]:parts_end[2]], label=false, color=:green)
+plot!(t[parts_end[1]:parts_end[2]], signal[parts_end[1]:parts_end[2]], label=false, color=:green, lw=2)
 
 # Segment 3 : Mouvement humain avec vibrations (en bleu)
-plot!(t[parts_end[2]:parts_end[3]], signal[parts_end[2]:parts_end[3]], label=false, color=:blue)
+plot!(t[parts_end[2]:parts_end[3]], signal[parts_end[2]:parts_end[3]], label=false, color=:blue, lw=2)
 
 # Segment 4 : Fin du signal (en rouge)
-plot!(t[parts_end[3]:end], signal[parts_end[3]:end], label=false, color=:red)
+plot!(t[parts_end[3]:end], signal[parts_end[3]:end], label=false, color=:red, lw=2)
 
 # Configuration de l'affichage des limites de l'axe des x et ajout du titre de l'axe
 xlims!(0, t[end])
+title!("Annotation du signal")
 xaxis!("Temps (s)")
-display(yaxis!("Vitesse (m/s)"))
+yaxis!("Vitesse (m/s)")
+display(plot!(size=(1000,400), left_margin=7mm, bottom_margin=7mm))
 
 # Analyse de la bande passante pour chaque segment avec `obw` (Occupied Bandwidth)
 # Cette fonction calcule la bande de fréquences occupée pour chaque segment du signal

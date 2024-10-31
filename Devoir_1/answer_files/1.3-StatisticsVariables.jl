@@ -13,9 +13,10 @@ facilitant ainsi l'analyse des caractéristiques dynamiques de chaque phase.
 # Inclusion des fonctions utilitaires
 include("devoir1_lib.jl")
 
+
 # Paramètres de fréquence
 fs = 500         # Fréquence d'échantillonnage (Hz)
-fc_human = 3.91  # Fréquence de coupure pour le signal humain (Hz)
+fc_human = 6     # Fréquence de coupure pour le signal humain (Hz)
 fc_vib = 24.1    # Fréquence de coupure pour le signal vibratoire (Hz)
 seg_l = 128      # Longueur de la fenêtre pour l’analyse segmentée (si applicable dans printStatisticTab)
 

@@ -20,8 +20,7 @@ using ControlSystemsBase
 using Distributions
 
 # Fonction d'initialisation : charge le signal et applique des filtres si nécessaire
-function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0.0, fc_vib::Float64=0.0, order::Int=2)
-    
+function init(fs::Number, val_end::Array; filtered::Bool=false, fc_human::Number=0.0, fc_vib::Number=0.0, order::Int=2)
     file = matopen(pwd() * "\\Devoir_1\\documentation\\poignee1ddl_4.mat")
     opvar = read(file, "opvar_4")
     close(file)
@@ -56,7 +55,7 @@ function init(fs::Int, val_end::Array; filtered::Bool=false, fc_human::Float64=0
 end
 
 # Fonction pour afficher les catégories du signal dans le temps
-function plotIndice(data::Array{Int}; t_max::Float64=length(data), colors::Array{Symbol}=[:blue, :yellow, :green, :red])
+function plotIndice(data::Array{Int}; t_max::Number=length(data), colors::Array{Symbol}=[:blue, :yellow, :green, :red])
     global i_mem = 1
     t = 0:t_max/length(data):t_max
 
@@ -134,7 +133,7 @@ end
 
 
 ## Question 1.1 =====================================================================================================
-function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
+function obw(signal::Array, fs::Number; t::StepRangeLen=0:1/fs:(length(signal)-1)/fs, p_title::String="", p_color::Symbol=:blue)
     periodgram = periodogram(signal, fs=fs)
     p = power(periodgram)
     f = freq(periodgram)
@@ -172,7 +171,7 @@ function obw(signal::Array, fs::Int; t::StepRangeLen=0:1/fs:(length(signal)-1)/f
 end
 
 # Fonction pour analyser un signal avec un filtre Butterworth
-function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; order::Int=2, p_title::String="", fc2::Number=50)
+function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; order::Int=2, p_title::String="", fc2::Number=50, evan::Bool=true)
     t = 0:1/fs:(length(signal)-1)/fs
     filtertype = if type == :lowpass
         Lowpass(fc/(fs/2))
@@ -189,20 +188,29 @@ function Butteranalyse(signal::Array, fc::Number, fs::Number, type::Symbol; orde
     ButterFilter = digitalfilter(filtertype, Butterworth(order))
     filt_sys = tf(ButterFilter, 1/fs)
     mag, phase, w = bode(filt_sys)
-    plot(w./(2pi), 20*log10.(mag[:][:][:]), label=false, color=:blue, y_guidefontcolor=:blue)
-    plot!(twinx(), w./(2pi), phase[:][:][:], label=false, color=:red, y_guidefontcolor=:red)
-    f1 = plot!(xlabel=["Fréquence (Hz)" ""], ylabel=["Amplitude (dB)" "Phase (deg)"], right_margin = 10mm)
+    plot(w./(2pi), 20*log10.(mag[:][:][:]), label=false, lw=2, color=:blue, y_guidefontcolor=:blue)
+    plot!(twinx(), w./(2pi), phase[:][:][:], label=false, lw=2, color=:red, y_guidefontcolor=:red)
+    f1 = plot!(xlabel=["Fréquence (Hz)" ""], ylabel=["Gain (dB)" "Phase (deg)"], right_margin = 10mm)
 
     pzmap(filt_sys, hz=true, title="")
     f2 = plot!(xlabel="Réels", ylabel="Imaginaires", right_margin = 5mm)
     
-    plot(t, signal, label="Signal non filtré", linewidth=2)
+    plot(t, signal, label="Signal non filtré", lw=2)
     xaxis!("Temps (s)")
     yaxis!("Vitesse (m/s)")
-    title!("Filtre d'ordre $(order) avec fc=$(fc) Hz")
-    f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", linewidth=2, top_margin = 5mm, right_margin = 5mm)
+    if type == :lowpass || type == :highpass
+        title!("Filtre d'ordre $(order) avec fc=$(fc) Hz")
+    else
+        title!("Filtre d'ordre $(order) avec fc=[$(fc) Hz, $(fc2) Hz]")
+    end
+    f3 = plot!(t, filt(ButterFilter, signal), label="Signal filtré", lw=2, top_margin = 5mm, right_margin = 5mm)
 
-    display(plot(f1, f2, f3, layout=@layout([a b; c]), plot_title=p_title, size=(1000, 800)))
+    if evan
+        p = plot(f1, f2, f3, layout=@layout([a b; c]), plot_title=p_title, size = (1000, 800), left_margin = 5mm)
+    else
+        p = plot(f1, f3, layout=(2,1), plot_title=p_title, size = (1000, 800), left_margin = 5mm)
+    end
+    display(p)
 end
 
 # Génération d'un tableau de statistiques
@@ -275,7 +283,7 @@ function stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int)
     return stats_var[:, 2:end]
 end
 
-function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
+function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_label=false, p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d(stats_var[1, :],
@@ -284,11 +292,11 @@ function plot_stats3D(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_ti
               title = p_title,
               color = p_color,
               alpha = p_alpha,
-              label = false
+              label = p_label
     )
 end
 
-function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_color::Symbol=:blue, p_alpha::Float64=1.0)
+function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_title::String="", p_label=false, p_color::Symbol=:blue, p_alpha::Float64=1.0)
     stats_var = stats3D(f_apply, signal, l_seg)
     
     scatter3d!(stats_var[1, :],
@@ -297,7 +305,7 @@ function plot_stats3D!(f_apply::Array{Function}, signal::Vector, l_seg::Int; p_t
                title = p_title,
                color = p_color,
                alpha = p_alpha,
-               label = false
+               label = p_label
     )
 end
 
@@ -315,7 +323,7 @@ end
 
 ## Question 2.X =====================================================================================================
 # Variante de la fonction `plotSFTF` avec un titre et un choix de couleurs pour chaque segment
-function plotSFTF(data::Array, t::StepRangeLen, fs::Int, l_seg::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
+function plotSFTF(data::Array, t::StepRangeLen, fs::Number, l_seg::Int; segment::Vector=[], p_colors::Vector{Symbol}=[], p_title::String="")
     if !isempty(segment)
         p_time_sig = plot(t[begin:segment[1]], data[begin:segment[1]], label=false, color=p_colors[1])
         for i in 2:length(segment)
@@ -349,7 +357,7 @@ end
 
 ## Question 2.4 =====================================================================================================
 # Fonction pour tracer l'énergie calculée sur chaque segment de la STFT
-function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Float64=length(data), p_title::String="")
+function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=length(data), t_max::Number=length(data), p_title::String="")
     data_STFT = stft(data, l_seg, div(l_seg, 2);
                      fs=fs, window=hamming
     )
@@ -364,12 +372,12 @@ function plotEnergy(data::Array, l_seg::Int; beginning::Int=1, ending::Int=lengt
     p = plot(0:t_max/(length(sig_e)-1):t_max, sig_e, label=false, title=p_title)
     xaxis!("Temps (s)")
     yaxis!("Energie (dB)")
-    ylims!(-70, maximum(sig_e))
+    ylims!(maximum(sig_e)-50, maximum(sig_e))
 
     return p
 end
 
-function correspondTo(data::Array, l_seg::Int, lim::Int; beginning::Int=1, ending::Int=length(data))
+function correspondTo(data::Array, l_seg::Int, lim::Number; beginning::Int=1, ending::Int=length(data))
     data_STFT = stft(data, l_seg, div(l_seg, 2);
                      fs=fs, window=hamming
     )

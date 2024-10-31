@@ -24,16 +24,16 @@ fc_vib = 24.1    # Fréquence de coupure pour isoler les vibrations (en atténua
 # La fonction `init` retourne les indices de fin des segments (parts_end), le vecteur temps (t) et le signal de déplacement (signal).
 parts_end, t, signal = init(fs, [35.4, 57, 70])
 
-## No 0Hz value ========================================================================
-Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans composante continue")
+## Suppression de la composante continue ===============================================
+Butteranalyse(signal, fc_0Hz, fs, :highpass; p_title="Sans composante continue", evan=false)
 
-# ## No human signal ===================================================================
-Butteranalyse(signal, fc_human, fs, :highpass; p_title="Sans signal humain")
+## Suppression du signal humain ========================================================
+Butteranalyse(signal, fc_0Hz, fs, :bandstop; fc2=fc_human, p_title="Sans signal humain", evan=false)
 
 ## Suppression du bruit des capteurs =====================================================
 # Application d'un filtre passe-bas pour atténuer le bruit de capteur en supprimant les fréquences supérieures à 24.1 Hz.
 # Cela permet de conserver les mouvements et vibrations utiles tout en éliminant les hautes fréquences indésirables.
-Butteranalyse(signal, fc_vib, fs, :lowpass; p_title="Sans le bruit des capteurs")
+Butteranalyse(signal, fc_vib, fs, :lowpass; p_title="Sans le bruit des capteurs", evan=false)
 
 ## Filtrage passe-bande pour réduire le bruit ============================================
 # Application de filtres passe-bande de différents ordres pour isoler les composantes du signal.
