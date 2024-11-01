@@ -1,2 +1,4 @@
 *.customization
-Devoir_1/documentation/.old_devoir1/*
+*.docx
+*.avi
+*/img/*
