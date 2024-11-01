@@ -2,3 +2,8 @@
 *.docx
 *.avi
 */img/*
+*.tmp
+
+Devoir_2/answer_files/*
+!Devoir_2/answer_files/*.m
+!Devoir_2/answer_files/*.slx
