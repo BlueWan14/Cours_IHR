@@ -11,7 +11,8 @@ Ch = 23.45;     % N*s/m
 
 % Admittance
 c = 20;         % N*s/m
-m = 50;         % kg
+m = .1;         % kg
+
 
 % Imperfections
 T = 0.1;        % s
@@ -19,11 +20,14 @@ T = 0.1;        % s
 % Gain
 Kp = 10000;
 
-%MR = 500;       % kg
-%CR = 100;       % N*s/m
-%Kb = 40000;     % N/m
-%Cb = 40;        % N*s/m 
+mR = 50;        % kg
+MR = 500;       % kg
+CR = 100;       % N*s/m
+Cb = 40;        % N*s/m 
+Kb = 40000;     % N/m
 
 
 Kh_min = Kh/2;
 Kh_max = Kh*2;
+
+[A, B, C, D] = calcIAD(Kb, Cb, CR, m, MR);
