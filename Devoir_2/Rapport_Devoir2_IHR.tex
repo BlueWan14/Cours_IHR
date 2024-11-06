@@ -52,18 +52,13 @@
 \newpage
 
 \section*{Introduction}
+    % à refaire...
     Les vibrations dans un mécanisme robotique, lorsqu’il est manipulé par un opérateur humain, peuvent affecter significativement la qualité et la précision de la tâche réalisée. Nous étudions l'impact perceptuel de ces vibrations lorsqu’un opérateur applique une force à l’aide d’une poignée sur un capteur de force fixé à un robot à un degré de liberté...
+\newpage
 
 \section{Énoncé 1 : Conception du modèle du mécanisme}
-\subsection{Question 1.1 : Modèle variable d’états pour l’IAD}
-% Inclure les figures et les résultats de l'analyse de la bande passante
-\begin{figure}[h!]
-    \centering
-    \includegraphics{./img/modele_humain-meca_robotique.png}
-    \caption{Modèle du mécanisme robotique et de l'humain\label{fig:modele_humain-meca_robotique}}
-\end{figure}
-
-On note sur la \autoref{fig:modele_humain-meca_robotique} que les variables d'états sont x_{1}\end, x_{2}\end, v_{1}\end et v_{2}\end. En effet, une vitesse est la dérivée d'une position, d'où :
+\subsection{Question 1.1}
+On note les variables d'états sont $x_{1}$, $x_{2}$, $v_{1}$ et $v_{2}$. En effet, une vitesse est la dérivée d'une position, d'où :
 \begin{center}
     \begin{pmatrix}
         x_{1}\\
@@ -157,21 +152,50 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
     \end{bmatrix}\\
 \end{center}
 
-\subsection{Question 1.2 : Filtrage fréquentiel}
-% Décrire les filtres appliqués, leurs ordres et l'impact sur le signal
 
-\subsection{Question 1.3 : Observation et la méthode d’adaptation}
-% Décrire les filtres appliqués, leurs ordres et l'impact sur le signal
+\subsection{Question 1.2}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=16cm]{./img/SchemaBlocAvecObs.png}
+    \caption{Schéma bloc du système avec observateur\label{fig:SchemaBlocAvecObs}}
+\end{figure}
+
+On ajoute un observateur afin de modifier le gain correcteur $K_{p}$. Celui-ci utilise les formules :
+\begin{center}
+    $K_{p}(n+1)=K_{p}(n)\cdot\eta$
+    \hspace{1cm}
+    \textit{où} \eta=
+    \begin{cases}
+        \eta_{min} & \text{, } \eta'\leq\eta_{min}\\
+        \eta' & \text{, } \eta'>\eta_{min}
+    \end{cases}\\
+    \hspace{6.5cm}
+    \eta'=
+    \begin{cases}
+        1 & \text{, } V\geq V_{min}\\
+        0 & \text{, } V\geq V_{max}\\
+        \frac{V_{max}-V}{V_{max}-V_{min}} & \text{, sinon}
+    \end{cases}\\
+    \hspace{6.8cm}
+    V=
+    \begin{cases}
+        \lambda\sum_{i=1}^{q-1}\frac{\left|y_{1,i+1}-y_{1,i}\right|}{t_{1,i+1}-t_{1,i}} & \text{, } q\geq 2\\
+        0 & \text{, } q<2
+    \end{cases}\\
+\end{center}
+
+\textit{
+    $\eta_{min}$ est une valeur défini proche de 0, $V_{min}=\frac{\lambda}{2}$, $V_{max}=V_{min}+\lambda$, $\lambda$ un coefficient d’amplitude, $q$ le nombre d’extremums présents dans le signal, $y$ l’amplitude du signal correspondant à l’ieme extremum et $t$ le temps correspondant.
+}
+
+\subsection{Question 1.3}
 
 \section{Énoncé 2 : Simulation}
-\subsection{Question 2.1 : Utilisation de la STFT}
-% Expliquer l'application de la STFT pour identifier les fréquences de vibration
+\subsection{Question 2.1}
 
-\subsection{Question 2.2 : Justification de l’utilisation des filtres}
-% Justifier l'utilisation des filtres et présenter les choix effectués
+\subsection{Question 2.2}
 
-\subsection{Question 2.3 : Calcul de l'indice de vibration}
-% Proposer et expliquer le calcul de l'indice de vibration en fonction des fréquences identifiées
+\subsection{Question 2.3}
 
 \section{Annexe}
 \subsection{Lien vers le Dépôt GitHub}
