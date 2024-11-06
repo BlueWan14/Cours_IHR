@@ -54,12 +54,11 @@
 \section*{Introduction}
     % à refaire...
     Les vibrations dans un mécanisme robotique, lorsqu’il est manipulé par un opérateur humain, peuvent affecter significativement la qualité et la précision de la tâche réalisée. Nous étudions l'impact perceptuel de ces vibrations lorsqu’un opérateur applique une force à l’aide d’une poignée sur un capteur de force fixé à un robot à un degré de liberté...
-\newpage
 
 \section{Énoncé 1 : Conception du modèle du mécanisme}
 \subsection{Question 1.1}
 On note les variables d'états sont $x_{1}$, $x_{2}$, $v_{1}$ et $v_{2}$. En effet, une vitesse est la dérivée d'une position, d'où :
-\begin{center}
+\[
     \begin{pmatrix}
         x_{1}\\
         x_{2}\\
@@ -73,24 +72,28 @@ On note les variables d'états sont $x_{1}$, $x_{2}$, $v_{1}$ et $v_{2}$. En eff
         \dot{x_{1}}\\
         \dot{x_{2}}
     \end{pmatrix}
-\end{center}
+\]
+
 
 Ainsi, on déduit les deux équations suivantes.
-\begin{center}
-    \left\{\begin{matrix}
-        m_{R}\ddot{x_{1}}=F-K_{B}x_{1}+K_{B}x_{2}-C_{B}\dot{x_{1}}+C_{B}\dot{x_{2}}\\
-        M_{R}\ddot{x_{2}}=K_{B}x_{1}-K_{B}x_{2}+C_{B}\dot{x_{1}}-C_{B}\dot{x_{2}}-C_{R}\dot{x_{2}}\\
-    \end{matrix}\right.\\
+\[
+    \begin{cases}
+        m_{R}\ddot{x_{1}} = F - K_{B}x_{1} + K_{B}x_{2} - C_{B}\dot{x_{1}} + C_{B}\dot{x_{2}} \\
+        M_{R}\ddot{x_{2}} = K_{B}x_{1} - K_{B}x_{2} + C_{B}\dot{x_{1}} - C_{B}\dot{x_{2}} - C_{R}\dot{x_{2}} \\
+    \end{cases}
+\]
+\[
     \Leftrightarrow
-    \left\{\begin{matrix}
-        \ddot{x_{1}}=\frac{F-K_{B}x_{1}+K_{B}x_{2}-C_{B}\dot{x_{1}}+C_{B}\dot{x_{2}}}{m_{R}}\\
-        \ddot{x_{2}}=\frac{K_{B}x_{1}-K_{B}x_{2}+C_{B}\dot{x_{1}}-C_{B}\dot{x_{2}}-C_{R}\dot{x_{2}}}{M_{R}}
-    \end{matrix}\right.\\
-\end{center}
+    \begin{cases}
+        \ddot{x_{1}} = \frac{F - K_{B}x_{1} + K_{B}x_{2} - C_{B}\dot{x_{1}} + C_{B}\dot{x_{2}}}{m_{R}} \\
+        \ddot{x_{2}} = \frac{K_{B}x_{1} - K_{B}x_{2} + C_{B}\dot{x_{1}} - C_{B}\dot{x_{2}} - C_{R}\dot{x_{2}}}{M_{R}}
+    \end{cases}
+\]
+
 
 Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX+BU$ et $Y=CX+DU$, où $A$, $B$, $C$ et $D$ sont à déterminer.
-\begin{center}
-    $\dot{X}=AX+BU$
+\[
+    \dot{X}=AX+BU
     \Leftrightarrow
     \begin{bmatrix}
         \dot{x_{1}}\\
@@ -124,12 +127,12 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
         F\\
         0
     \end{bmatrix}\\
-\end{center}
+\]
 
-\begin{center}
-    $Y=CX+DU$
+\[
+    Y=CX+DU
     \Leftrightarrow
-    $Y=CX$
+    Y=CX
     \Leftrightarrow
     \begin{bmatrix}
         0\\
@@ -150,9 +153,7 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
         \dot{x_{1}}\\
         \dot{x_{2}}
     \end{bmatrix}\\
-\end{center}
-
-
+\]
 \subsection{Question 1.2}
 \begin{figure}[h!]
     \centering
@@ -160,33 +161,52 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
     \caption{Schéma bloc du système avec observateur\label{fig:SchemaBlocAvecObs}}
 \end{figure}
 
-On ajoute un observateur afin de modifier le gain correcteur $K_{p}$. Celui-ci utilise les formules :
+Un observateur est ajouté pour ajuster dynamiquement le gain correcteur $K_{p}$, qui est mis à jour selon la formule suivante :
+
+\[
+K_{p}(n+1) = K_{p}(n) \cdot \eta
+\]
 \begin{center}
-    $K_{p}(n+1)=K_{p}(n)\cdot\eta$
-    \hspace{1cm}
-    \textit{où} \eta=
-    \begin{cases}
-        \eta_{min} & \text{, } \eta'\leq\eta_{min}\\
-        \eta' & \text{, } \eta'>\eta_{min}
-    \end{cases}\\
-    \hspace{6.5cm}
-    \eta'=
-    \begin{cases}
-        1 & \text{, } V\geq V_{min}\\
-        0 & \text{, } V\geq V_{max}\\
-        \frac{V_{max}-V}{V_{max}-V_{min}} & \text{, sinon}
-    \end{cases}\\
-    \hspace{6.8cm}
-    V=
-    \begin{cases}
-        \lambda\sum_{i=1}^{q-1}\frac{\left|y_{1,i+1}-y_{1,i}\right|}{t_{1,i+1}-t_{1,i}} & \text{, } q\geq 2\\
-        0 & \text{, } q<2
-    \end{cases}\\
+    où
 \end{center}
 
+\[
+\eta = 
+\begin{cases}
+    \eta_{\text{min}} & \text{si } \eta' \leq \eta_{\text{min}} \\
+    \eta' & \text{si } \eta' > \eta_{\text{min}}
+\end{cases}
+\]
+
+\begin{center}
+    avec
+\end{center}
+
+\[
+\eta' = 
+\begin{cases}
+    1 & \text{si } V \geq V_{\text{min}} \\
+    0 & \text{si } V \geq V_{\text{max}} \\
+    \frac{V_{\text{max}} - V}{V_{\text{max}} - V_{\text{min}}} & \text{sinon}
+\end{cases}
+\]
+
+\begin{center}
+    et
+\end{center}
+
+\[
+V = 
+\begin{cases}
+    \lambda \sum_{i=1}^{q-1} \frac{\left| y_{1,i+1} - y_{1,i} \right|}{t_{1,i+1} - t_{1,i}} & \text{si } q \geq 2 \\
+    0 & \text{si } q < 2
+\end{cases}
+\]
+
 \textit{
-    $\eta_{min}$ est une valeur défini proche de 0, $V_{min}=\frac{\lambda}{2}$, $V_{max}=V_{min}+\lambda$, $\lambda$ un coefficient d’amplitude, $q$ le nombre d’extremums présents dans le signal, $y$ l’amplitude du signal correspondant à l’ieme extremum et $t$ le temps correspondant.
+    où $\eta_{\text{min}}$ est une valeur définie proche de 0, $V_{\text{min}} = \frac{\lambda}{2}$, $V_{\text{max}} = V_{\text{min}} + \lambda$, $\lambda$ est un coefficient d’amplitude, $q$ représente le nombre d’extremums présents dans le signal, $y$ est l’amplitude du signal correspondant à l'${i}^{\text{ème}}$ extremum, et $t$ le temps correspondant.
 }
+
 
 \subsection{Question 1.3}
 
