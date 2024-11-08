@@ -20,8 +20,8 @@ function [A, B, C, D] = calcIAD(K, C1, C2, m, M)
     C = [
          0      0       0       0;
          0      1       0       0;
-         0      0       0       0;
-         0      0       0       1
+         0      0       1       0;
+         0      0       0       0
         ];
 
     D = zeros(4, 1);
