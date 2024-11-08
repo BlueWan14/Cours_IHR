@@ -7,6 +7,8 @@
 *.aux
 *.toc
 *.log
+
 Devoir_2/answer_files/*
 !Devoir_2/answer_files/*.m
 !Devoir_2/answer_files/*.slx
+Calc_Sys.m
