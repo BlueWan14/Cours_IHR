@@ -9,6 +9,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{rotating}
 
 \setcounter{secnumdepth}{0}
 \hypersetup{colorlinks=true, linkcolor=black}
@@ -116,17 +117,12 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
     \end{bmatrix}
     +
     \begin{bmatrix}
-        0 & 0 & 0 & 0\\
-        0 & 0 & 0 & 0\\
-        0 & 0 & \frac{1}{m_{R}} & 0\\
-        0 & 0 & 0 & 0\\
-    \end{bmatrix}
-    \begin{bmatrix}
         0\\
         0\\
-        F\\
+        \frac{1}{m_{R}}\\
         0
-    \end{bmatrix}\\
+    \end{bmatrix}
+    \cdot F
 \]
 
 \[
@@ -135,17 +131,13 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
     Y=CX
     \Leftrightarrow
     \begin{bmatrix}
-        0\\
         x_{2}\\
-        0\\
-        \dot{x_{2}}
+        \dot{x_{1}}
     \end{bmatrix}
     =
     \begin{bmatrix}
-        0 & 0 & 0 & 0\\
         0 & 1 & 0 & 0\\
-        0 & 0 & 1 & 0\\
-        0 & 0 & 0 & 0\\
+        0 & 0 & 1 & 0
     \end{bmatrix}
     \begin{bmatrix}
         x_{1}\\
@@ -191,26 +183,22 @@ Avec $\eta_{\text{min}}$ est une valeur définie proche de 0, $V_{\text{min}} = 
 
 
 \subsection{Question 1.3}
-On a : 
-$Den(s)=M_R T m_R^2 v \cdot s^6 + (M_R m_R^2 v + C_B T m_R^2 v + C_R T m_R^2 v + C_B M_R T m_R v + M_R T c m_R v) \cdot s^5 + (C_B m_R^2 v + C_R m_R^2 v + K_B T m_R^2 v + C_B M_R m_R v + K_p M_R m_R v + M_R c m_R v + C_B M_R T c v + C_B C_R T m_R v + K_B M_R T m_R v + C_B T c m_R v + C_R T c m_R v) \cdot s^4 + (K_B m_R^2 v + C_B M_R c v + C_B C_R m_R v + C_B K_p m_R v + K_p M_R c v + C_R K_p m_R v + K_B M_R m_R v + C_B c m_R v + C_R c m_R v + C_B C_R T c v + K_B M_R T c v + C_R K T m_R v + K_B T c m_R v) \cdot s^3 + (C_B C_R c v + C_B K_p c v + C_R K_p c v + K_B M_R c v + C_R K m_R v + K K_p m_R v + K c m_R v + C_R K T c v) \cdot s^2 + (C_B K_h K_p + C_R K c v + K K_p c v) \cdot s + K_B K_h K_p$
-\\
-
 \begin{center}
     \begin{tabular}{|c|c c c c|}
         \hline
-        s^n & a_n & a_{n-2} & a_{n-4} & ...\\
+        s^n & a_n & a_{n-2} & a_{n-4} & $...$\\
         \hline
-        s^{n-1} & a_{n-1} & a_{n-3} & a_{n-5} & ...\\
+        s^{n-1} & a_{n-1} & a_{n-3} & a_{n-5} & $...$\\
         \hline
-        s^{n-2} & b_{n-1} & b_{n-3} & b_{n-5} & ...\\
+        s^{n-2} & b_{n-1} & b_{n-3} & b_{n-5} & $...$\\
         \hline
-        s^{n-3} & c_{n-1} & c_{n-3} & c_{n-5} & ...\\
+        s^{n-3} & c_{n-1} & c_{n-3} & c_{n-5} & $...$\\
         \hline
-        . & . & . & . & .\\
-        . & . & . & . & .\\
-        . & . & . & . & .\\
+        $.$ & $.$ & $.$ & $.$ & $.$\\
+        $.$ & $.$ & $.$ & $.$ & $.$\\
+        $.$ & $.$ & $.$ & $.$ & $.$\\
         \hline
-        s^0 & h_{n-1} & h_{n-3} & h_{n-5} & ...\\
+        s^0 & h_{n-1} & h_{n-3} & h_{n-5} & $...$\\
         \hline
     \end{tabular}
 \end{center}
@@ -239,6 +227,24 @@ Et $c_{n-1}=\frac{-1}{b_{n-1}}$
     b_{n-1} & b_{n-5} \\
 \end{vmatrix}
 , etc.\\
+
+Voir le fichier "calcRouthHurwitz.m" afin de voir le tableau. Ici, les valeurs qui vont nous intéresser sont :\\
+$a_n = 50000\\
+ a_{n-1} = 604000\\
+ b_{n-1} = \frac{1350000*Kp + 652552000}{151}\\
+ c_{n-1} = 
+\begin{math}
+    -\frac{444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}
+\end{math}\\
+  d_{n-1} = 
+\begin{math}
+    \frac{\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) / \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right)}{444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000}
+\end{math}\\
+ e_{n-1} =
+\begin{math}
+    \frac{\left( \left( \left( \left( \left( \frac{1350000 K_p}{151} \right) + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p \right) \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) \right)}{\left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) + \frac{40000 K_h K_p \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right)}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}} {\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) \right)}
+\end{math}\\
+$
 
 
 
