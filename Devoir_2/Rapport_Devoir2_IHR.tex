@@ -251,25 +251,25 @@ c_{n-3} = \frac{-1}{b_{n-1}}
     a_{n-1} & a_{n-5} \\
     b_{n-1} & b_{n-5}
 \end{vmatrix}
-, etc.\\
+\] etc.\\
 
 Voir le fichier "calcRouthHurwitz.m" afin de voir le tableau. Ici, les valeurs qui vont nous intéresser sont :\\
 $a_n = 50000\\
  a_{n-1} = 604000\\
  b_{n-1} = \frac{1350000*Kp + 652552000}{151}\\
- c_{n-1} = 
+ c_{n-1} =$ 
+
 \begin{math}
     -\frac{444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}
 \end{math}\\
-  d_{n-1} = 
+    $$d_{n-1} =$$
 \begin{math}
     \frac{\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) / \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right)}{444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000}
 \end{math}\\
- e_{n-1} =
+    $$e_{n-1} =$$
 \begin{math}
-    \frac{\left( \left( \left( \left( \left( \frac{1350000 K_p}{151} \right) + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p \right) \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) \right)}{\left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) + \frac{40000 K_h K_p \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right)}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}} {\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) \right)}
+    \frac{\left( \left( \left( \left( \left( \frac{1350000 K_p}{151} \right) + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p \right) \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) \right)}{\left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) + \frac{40000 K_h K_p \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right)}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}} {\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right)}
 \end{math}\\
-$
 
 
 
