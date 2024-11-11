@@ -1,14 +1,11 @@
 system_config
-clear Kp Kh
+clear Kp
 
-syms s Kp Kh
-Den = MR*T*m*mR*s^6 + ...
-      (MR*m*mR + Cb*MR*T*m + CR*T*m*mR + MR*T*c*mR + Cb*T*m*mR)*s^5 + ...
-      (Cb*MR*m + Kp*MR*m + CR*m*mR + MR*c*mR + Cb*m*mR + CR*Cb*T*m + Cb*MR*T*c + Kb*MR*T*m + CR*T*c*mR + Cb*T*c*mR + Kb*T*m*mR)*s^4 + ...
-      (CR*Cb*m + Cb*MR*c + CR*Kp*m + Kp*MR*c + Cb*Kp*m + Kb*MR*m + CR*c*mR + Cb*c*mR + Kb*m*mR + CR*Cb*T*c + CR*Kb*T*m + Kb*MR*T*c + Kb*T*c*mR)*s^3 + ...
-      (CR*Cb*c + CR*Kp*c + Cb*Kp*c + CR*Kb*m + Kb*MR*c + Kb*Kp*m + Kb*c*mR + CR*Kb*T*c)*s^2 + ...
-      (Cb*Kh*Kp + CR*Kb*c + Kb*Kp*c)*s + ...
-      Kb*Kh*Kp;
+sys = Calc_Sys();
+
+syms Kp s
+TF = subs(sys, [sym('MR') sym('mR') sym('Kb') sym('Cb') sym('CR') sym('T') sym('m') sym('c') sym('Kh')], [MR mR Kb Cb CR T m c Kh]);
+[Num, Den] = numden(TF)
 [an, terms] = coeffs(Den, s);
 l_terms = length(terms);
 l = round(l_terms/2);
@@ -29,38 +26,26 @@ end
 disp("Tableau du critère de Routh-Hurwitz :")
 disp(s)
 
-Kh_max = 0;
-Kh_min = Inf;
-Kp_max = 0;
-Kp_min = Inf;
+Kp_range = struct('max', -Inf, 'min', 0);
+assume(Kp > 0)          % car s0 = Kp*55000 = 0
 for i = 1:l_terms
-    sol = solve(s(i, 1) == 0, [Kp Kh]);
+    if ~isempty(find(symvar(s(i, 1)) == Kp)) || ~isempty(find(symvar(s(i, 1)) == Kh))
+        sol = solve(s(i, 1) == 0, Kp);
 
-    disp("Kh :")
-    disp(sol.Kh)
-    if max(sol.Kh) > Kh_max
-        Kh_max = max(sol.Kh);
-    end
-    if min(sol.Kh) < Kh_min
-        if min(sol.Kh) > 0
-            Kh_min = min(sol.Kh);
-        else
-            Kh_min = 0;
-        end
-    end
-
-    disp("Kp :")
-    disp(sol.Kp)
-    if max(sol.Kp) > Kp_max
-        Kp_max = max(sol.Kp);
-    end
-    if min(sol.Kp) < Kp_min
-        if min(sol.Kp) > 0
-            Kp_min = min(sol.Kp);
-        else
-            Kp_min = 0;
+        Kp_sol = double(sol);
+        if max(Kp_sol) > Kp_range.max
+            Kp_range.max = max(Kp_sol);
         end
     end
 end
 
-clear s Kp Kh
+disp("<strong>" + Kp_range.min + " < Kp < " + Kp_range.max + "</strong>")
+
+disp(subs(s, Kp, Kp_range.max))
+
+%hold on;
+TF_max = subs(TF, Kp, Kp_range.max);
+TFFun_max = matlabFunction(TF_max);
+TFFun_max = str2func(regexprep(func2str(TFFun_max), '\.([/^\\*])', '$1'));
+rlocus(tf(TFFun_max(tf('s'))))
+%hold off;
