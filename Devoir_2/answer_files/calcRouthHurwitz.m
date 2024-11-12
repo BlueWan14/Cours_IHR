@@ -1,66 +1,54 @@
+close all
 system_config
 clear Kp Kh
 
-syms s Kp Kh
-Den = MR*T*m*mR*s^6 + ...
-      (MR*m*mR + Cb*MR*T*m + CR*T*m*mR + MR*T*c*mR + Cb*T*m*mR)*s^5 + ...
-      (Cb*MR*m + Kp*MR*m + CR*m*mR + MR*c*mR + Cb*m*mR + CR*Cb*T*m + Cb*MR*T*c + Kb*MR*T*m + CR*T*c*mR + Cb*T*c*mR + Kb*T*m*mR)*s^4 + ...
-      (CR*Cb*m + Cb*MR*c + CR*Kp*m + Kp*MR*c + Cb*Kp*m + Kb*MR*m + CR*c*mR + Cb*c*mR + Kb*m*mR + CR*Cb*T*c + CR*Kb*T*m + Kb*MR*T*c + Kb*T*c*mR)*s^3 + ...
-      (CR*Cb*c + CR*Kp*c + Cb*Kp*c + CR*Kb*m + Kb*MR*c + Kb*Kp*m + Kb*c*mR + CR*Kb*T*c)*s^2 + ...
-      (Cb*Kh*Kp + CR*Kb*c + Kb*Kp*c)*s + ...
-      Kb*Kh*Kp;
-[an, terms] = coeffs(Den, s);
-l_terms = length(terms);
-l = round(l_terms/2);
+[BoucleVitesse, Boucle] = Calc_Sys();
 
-s = sym(zeros(l_terms, l));
-for n=1:l
-    i = n*2;
-    s(l_terms, n) = an(i-1);
-    if i < l_terms
-        s(l_terms-1, n) = an(i);
-    end
-end
-for k=l_terms-2:-1:1
-    for n=1:l-1
-        s(k, n) = (s(k+1, 1)*s(k+2, n+1)-s(k+2, 1)*s(k+1, n+1))/s(k+1, 1);
-    end
-end
-disp("Tableau du critère de Routh-Hurwitz :")
-disp(s)
+syms Kp Kh s
+disp("<strong>Boucle de vitesse</strong>")
+BoucleVitesse = subs(BoucleVitesse, [sym('MR') sym('mR') sym('Kb') sym('Cb') sym('CR') sym('T')], [MR mR Kb Cb CR T]);
+S_vitesse = calcTabRH(BoucleVitesse, s);
+disp("<strong>Boucle complete</strong>")
+Boucle = subs(Boucle, [sym('MR') sym('mR') sym('Kb') sym('Cb') sym('CR') sym('T') sym('m') sym('c')], [MR mR Kb Cb CR T m c]);
+S_boucle = calcTabRH(Boucle, s);
 
-Kh_max = 0;
-Kh_min = Inf;
-Kp_max = 0;
-Kp_min = Inf;
-for i = 1:l_terms
-    sol = solve(s(i, 1) == 0, [Kp Kh]);
+eqs = [S_vitesse(symvar(S_vitesse(:, 1)) == Kp, 1), S_boucle(find(symvar(S_boucle(:, 1)) == Kp) || find(symvar(S_boucle(:, 1)) == Kh), 1)];
+assume(Kh > 0)      % car la rigidité de l'humain ne peux pas être négative
+cond = solve(eqs > 0, Kp, ReturnConditions=true);
+disp("<strong>" + string(subs(cond.conditions, sym('x'), Kp)) + "</strong>")
 
-    disp("Kh :")
-    disp(sol.Kh)
-    if max(sol.Kh) > Kh_max
-        Kh_max = max(sol.Kh);
-    end
-    if min(sol.Kh) < Kh_min
-        if min(sol.Kh) > 0
-            Kh_min = min(sol.Kh);
-        else
-            Kh_min = 0;
+
+K_test = [1e-6 1e-6];
+
+%disp(subs(S_boucle, [Kh Kp], K_test))
+
+TF = subs(Boucle, [Kh Kp], K_test);
+TFFun = matlabFunction(TF);
+TFFun = str2func(regexprep(func2str(TFFun), '\.([/^\\*])', '$1'));
+figure;
+rlocus(tf(TFFun(tf('s'))))
+
+
+
+function S = calcTabRH(TF, s)
+    [~, Den] = numden(TF);
+    [an, terms] = coeffs(Den, s);
+    l_terms = length(terms);
+    l = round(l_terms/2);
+    
+    S = sym(zeros(l_terms, l));
+    for n=1:l
+        i = n*2;
+        S(l_terms, n) = an(i-1);
+        if i < l_terms
+            S(l_terms-1, n) = an(i);
         end
     end
-
-    disp("Kp :")
-    disp(sol.Kp)
-    if max(sol.Kp) > Kp_max
-        Kp_max = max(sol.Kp);
-    end
-    if min(sol.Kp) < Kp_min
-        if min(sol.Kp) > 0
-            Kp_min = min(sol.Kp);
-        else
-            Kp_min = 0;
+    for k=l_terms-2:-1:1
+        for n=1:l-1
+            S(k, n) = (S(k+1, 1)*S(k+2, n+1)-S(k+2, 1)*S(k+1, n+1))/S(k+1, 1);
         end
     end
+    disp("Tableau du critère de Routh-Hurwitz :")
+    disp(S)
 end
-
-clear s Kp Kh

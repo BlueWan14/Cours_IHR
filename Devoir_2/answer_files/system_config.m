@@ -17,7 +17,7 @@ m = 20;         % kg        Masse virutelle
 T = .1;         % s         Temps d'échantillonage
 
 % Gain
-Kp = 10;
+Kp = -100;
 
 mR = 50;        % kg        Masse des rotors
 MR = 500;       % kg        Masse du système
