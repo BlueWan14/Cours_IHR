@@ -1,4 +1,4 @@
-\documentclass[a4paper,11pt]{article}
+\documentclass[a4paper,12pt]{article}
 \usepackage[francais]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -14,6 +14,20 @@
 \setcounter{secnumdepth}{0}
 \hypersetup{colorlinks=true, linkcolor=black}
 \geometry{margin=1in}
+
+\definecolor{codegreen}{rgb}{0,0.5,0.07}
+\definecolor{codeblue}{rgb}{0.05,0,1.0}
+\definecolor{codepurple}{rgb}{0.65,0.35,0.96}
+\lstdefinestyle{mystyle}{
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{codeblue},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\normalsize,
+    breakatwhitespace=true,
+    breaklines=true,
+    frame=lines,
+}
+\lstset{style=mystyle}
 
 \begin{document}
 
@@ -187,101 +201,105 @@ Lors d'une étude précédente, nous nous penchions sur la détectection des vib
     \caption{Commande des mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
 \end{figure}
 
-Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \ref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
+Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
 
 Dans Simulink, on représentera ce bloc avec le programme suivant :
+% à compléter
 
 
 \subsection{Question 1.3}
-On a : \\
-$Den(s)=M_R T m_R^2 v \cdot s^6 + (M_R m_R^2 v + C_B T m_R^2 v + C_R T m_R^2 v + C_B M_R T m_R v + M_R T c m_R v) \cdot s^5 + (C_B m_R^2 v + C_R m_R^2 v + K_B T m_R^2 v + C_B M_R m_R v + K_p M_R m_R v + M_R c m_R v + C_B M_R T c v + C_B C_R T m_R v + K_B M_R T m_R v + C_B T c m_R v + C_R T c m_R v) \cdot s^4 + (K_B m_R^2 v + C_B M_R c v + C_B C_R m_R v + C_B K_p m_R v + K_p M_R c v + C_R K_p m_R v + K_B M_R m_R v + C_B c m_R v + C_R c m_R v + C_B C_R T c v + K_B M_R T c v + C_R K T m_R v + K_B T c m_R v) \cdot s^3 + (C_B C_R c v + C_B K_p c v + C_R K_p c v + K_B M_R c v + C_R K m_R v + K K_p m_R v + K c m_R v + C_R K T c v) \cdot s^2 + (C_B K_h K_p + C_R K c v + K K_p c v) \cdot s + K_B K_h K_p$
-\\
+Le critère de Routh-Hurwitz est une méthode mathétique permettant déterminer rapidement la stabilité d'un système. Elle consiste à générer un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
 
-\[
-\begin{array}{|c|c c c c|}
-    \hline
-    s^n & a_n & a_{n-2} & a_{n-4} & \dots \\
-    \hline
-    s^{n-1} & a_{n-1} & a_{n-3} & a_{n-5} & \dots \\
-    \hline
-    s^{n-2} & b_{n-1} & b_{n-3} & b_{n-5} & \dots \\
-    \hline
-    s^{n-3} & c_{n-1} & c_{n-3} & c_{n-5} & \dots \\
-    \hline
-    \vdots & \vdots & \vdots & \vdots & \vdots \\
-    \hline
-    s^0 & h_{n-1} & h_{n-3} & h_{n-5} & \dots \\
-    \hline
-\end{array}
-\]
+\begin{table}[ht]
+    \centering
+    \[
+    \begin{array}{|c|c c c c|}
+        \hline
+        s^n & a_n & a_{n-2} & a_{n-4} & \dots \\
+        \hline
+        s^{n-1} & a_{n-1} & a_{n-3} & a_{n-5} & \dots \\
+        \hline
+        s^{n-2} & b_{n-1} & b_{n-3} & b_{n-5} & \dots \\
+        \hline
+        s^{n-3} & c_{n-1} & c_{n-3} & c_{n-5} & \dots \\
+        \hline
+        \vdots & \vdots & \vdots & \vdots & \vdots \\
+        \hline
+        s^0 & h_{n-1} & h_{n-3} & h_{n-5} & \dots \\
+        \hline
+    \end{array}
+    \]
+    \caption{Tableau théorique du critère de Routh-Hurwitz}
+    \label{tab:table_theo_critRH}
+\end{table}
 
-où
+Dans le \autoref{tab:table_theo_critRH}, on retrouve :
+\begin{itemize}
+    \item[$\bullet$] $a_{n-i}$, les coefficients du dénominateur.
+    \item[$\bullet$] $b_{n-i}$, donnés par :
+        $b_{n-i} = \frac{-1}{a_{n-1}}
+        \begin{vmatrix}
+            a_n & a_{n-i-1} \\
+            a_{n-1} & a_{n-i-2}
+        \end{vmatrix}
+        = \frac{a_{n-1} a_{n-i-1} - a_n a_{n-i-2}}{a_{n-1}}$
+    \item[$\bullet$] $c_{n-i}$, donnés par :
+        $c_{n-i} = \frac{-1}{b_{n-1}}
+        \begin{vmatrix}
+            a_n & a_{n-i-2} \\
+            b_{n-1} & b_{n-i-2}
+        \end{vmatrix}
+        = \frac{b_{n-1} a_{n-i-2} - a_n b_{n-i-2}}{b_{n-1}}$
+    \item[$\bullet$] etc.
+\end{itemize} 
 
-\[
-b_{n-1} = \frac{-1}{a_{n-1}}
-\begin{vmatrix}
-    a_n & a_{n-2} \\
-    a_{n-1} & a_{n-3}
-\end{vmatrix}
-= \frac{a_{n-1} a_{n-2} - a_n a_{n-3}}{a_{n-1}}
-\]
+On utilise cette méthode afin de déterminer la plage de valeurs des gain $K_p$ et $K_h$.
+\subsubsection{Boucle de vitesse}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=8cm]{./img/cmd_meca_rob_hum_vit.png}
+    \caption{Commande du mécanisme robotique}
+    \label{fig:SchemaBlocMeca}
+\end{figure}
+Dans un premier temps, on étudie la plage du gain $K_p$ en se focalisant sur la boucle de vitesse présentée à la \autoref{fig:SchemaBlocMeca}. Afin de construire le critère de Routh-Hurwitz plus simplement, on utilise ce programme MATLAB : \\
+\begin{lstlisting}[language=Matlab]
+    syms Kp Kh s
 
-\[
-b_{n-3} = \frac{-1}{a_{n-1}}
-\begin{vmatrix}
-    a_n & a_{n-4} \\
-    a_{n-1} & a_{n-5}
-\end{vmatrix}
-\]
+    % Extraction des coefficients du denominateur =====
+    [~, Den] = numden(BoucleVitesse);
+    [an, terms] = coeffs(Den, s);
+    l_terms = length(terms);
+    l = round(l_terms/2);
 
-et
+    % Creation du tableau =============================
+    S = sym(zeros(l_terms, l)); % Tableau de zeros
+    % Ajout des coefficients du denominateur
+    for n=1:l
+        i = n*2;
+        S(l_terms, n) = an(i-1);
+        if i < l_terms
+            S(l_terms-1, n) = an(i);
+        end
+    end
+    % Calcul des autres elements du tableau
+    for k=l_terms-2:-1:1
+        for n=1:l-1
+            S(k, n) = (S(k+1, 1)*S(k+2, n+1)-S(k+2, 1)*S(k+1, n+1))/S(k+1, 1);
+        end
+    end
 
-\[
-c_{n-1} = \frac{-1}{b_{n-1}}
-\begin{vmatrix}
-    a_{n-1} & a_{n-3} \\
-    b_{n-1} & b_{n-3}
-\end{vmatrix}
-\]
+    % Affichage du tableau ============================
+    disp("Tableau du critere de Routh-Hurwitz :")
+    disp(S)
+\end{lstlisting}
 
-\[
-c_{n-3} = \frac{-1}{b_{n-1}}
-\begin{vmatrix}
-    a_{n-1} & a_{n-5} \\
-    b_{n-1} & b_{n-5}
-\end{vmatrix}
-\] etc.\\
-
-Voir le fichier "calcRouthHurwitz.m" afin de voir le tableau. Ici, les valeurs qui vont nous intéresser sont :\\
-$a_n = 50000\\
- a_{n-1} = 604000\\
- b_{n-1} = \frac{1350000*Kp + 652552000}{151}\\
- c_{n-1} =$ 
-
-\begin{math}
-    -\frac{444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}
-\end{math}\\
-    $$d_{n-1} =$$
-\begin{math}
-    \frac{\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) / \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right)}{444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000}
-\end{math}\\
-    $$e_{n-1} =$$
-\begin{math}
-    \frac{\left( \left( \left( \left( \left( \frac{1350000 K_p}{151} \right) + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p \right) \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right) \right)}{\left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) + \frac{40000 K_h K_p \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right)}{\frac{1350000 K_p}{151} + \frac{652552000}{151}}} {\left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) \cdot \left( 800000 K_p + 40 K_h K_p + 80000000 \right) - 24160000000 K_h K_p + \left( \frac{111222800 K_p}{151} - \frac{500 K_h K_p}{151} + \frac{78740080000}{151} \right) \cdot \left( 444891200000 K_p - \left( 12800 K_p + 492628000 \right) \cdot \left( \frac{1350000 K_p}{151} + \frac{652552000}{151} \right) - 2000000 K_h K_p + 314960320000000 \right) \right)}
-\end{math}\\
-
-L'équation qui donne $K_p$ est :
-\[
-\sqrt{
-\begin{aligned}
-& 13500 K_h^2 K_p^4 + 5722790400 K_h K_p^4 - 1536192000000 K_p^4 + 25 K_h^3 K_p^3 + 364212158627392 K_h K_p^3 \\
-& \quad - 1477369060 K_h^2 K_p^3 - 222772866812160000 K_p^3 + 58039881976304 K_h^2 K_p^2 + 7522346448958687680 K_h K_p^2 \\
-& \quad - 279602932301062400000 K_p^2 + 3368250209611099328000 K_h K_p - 97036565037662080000000 K_p \\
-& \quad - 7130246428367744000000000
-\end{aligned}
-}
-\]
-
+\subsubsection{Boucle complète}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=14cm]{./img/cmd_meca_rob_hum.png}
+    \caption{Commande des mécanisme robotique et humain}
+    \label{fig:SchemaBlocComplet}
+\end{figure}
 
 
 \newpage
