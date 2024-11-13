@@ -61,9 +61,12 @@
 \newpage
 
 \section{Introduction}
-    % à refaire...
-    Les vibrations dans un mécanisme robotique, lorsqu’il est manipulé par un opérateur humain, peuvent affecter significativement la qualité et la précision de la tâche réalisée. Nous étudions l'impact perceptuel de ces vibrations lorsqu’un opérateur applique une force à l’aide d’une poignée sur un capteur de force fixé à un robot à un degré de liberté...
 
+    Les vibrations dans un mécanisme robotique manipulé par un opérateur humain peuvent significativement compromettre la précision et la qualité de la tâche effectuée. Lorsque l’opérateur applique une force via une poignée équipée d’un capteur, des vibrations non désirées peuvent survenir, surtout lorsque l'opérateur ajuste la rigidité de son bras. Ces vibrations perturbent non seulement la performance mais réduisent aussi le confort de l’utilisateur.
+
+    Dans le cadre de ce projet, nous cherchons à modéliser et analyser l'impact perceptuel de ces vibrations en interaction humain-robot (IHR). Notre approche implique le développement d'un observateur de vibrations capable de détecter et segmenter les parties du signal problématiques, permettant ainsi un ajustement dynamique d’un contrôleur proportionnel en fonction de l'indice de vibration mesuré. L’objectif est de minimiser ces vibrations, tout en tenant compte de l’expérience ressentie par l’opérateur.
+
+    Ce rapport aborde plusieurs aspects de la conception et de la simulation du modèle du mécanisme, incluant la formulation des équations d’état du système, l’implémentation d’un critère de stabilité basé sur le critère de Routh-Hurwitz, ainsi que la configuration de la boucle de contrôle pour limiter les vibrations. Nous explorons également la détection autonome des caractéristiques vibratoires à travers une simulation pour tester l'efficacité de notre modèle dans des scénarios variés.
 
 \newpage
 \section{Énoncé 1 : Conception du modèle du mécanisme}
@@ -74,7 +77,7 @@
     \caption{Modèle du mécanisme robotique et de l'humain \label{fig:ModelMecaRobotHumain}}
 \end{figure}
 
-La \autoref{fig:ModelMecaRobotHumain} présente le mécanisme robotique que nous allons utiliser, où :
+La \hyperref[fig:ModelMecaRobotHumain]{\autoref{fig:ModelMecaRobotHumain}} présente le mécanisme robotique que nous allons utiliser, où :
 \begin{itemize}
     \item[$\bullet$] $M_R$ : masse de la charge \textit{[kg]}.
     \item[$\bullet$] $m_R$ : masse du système \textit{[kg]}.
@@ -201,12 +204,14 @@ Lors d'une étude précédente, nous nous penchions sur la détectection des vib
     \caption{Commande des mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
 \end{figure}
 
-Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
+Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \hyperref[fig:SchemaBlocAvecObs]{\autoref{fig:SchemaBlocAvecObs}}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
 
 Dans Simulink, on représentera ce bloc avec le programme suivant :
 % à compléter
 
 
+
+\newpage
 \subsection{Question 1.3}
 Le critère de Routh-Hurwitz est une méthode mathétique permettant déterminer rapidement la stabilité d'un système. Elle consiste à générer un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
 
@@ -261,7 +266,8 @@ On utilise cette méthode afin de déterminer la plage de valeurs des gain $K_p$
     \caption{Commande du mécanisme robotique}
     \label{fig:SchemaBlocMeca}
 \end{figure}
-Dans un premier temps, on étudie la plage du gain $K_p$ en se focalisant sur la boucle de vitesse présentée à la \autoref{fig:SchemaBlocMeca}. Afin de construire le critère de Routh-Hurwitz plus simplement, on utilise ce programme MATLAB : \\
+Dans un premier temps, on étudie la plage du gain $K_p$ en se focalisant sur la boucle de vitesse présentée à la \hyperref[fig:SchemaBlocMeca]{\autoref{fig:SchemaBlocMeca}}. Afin de construire le critère de Routh-Hurwitz plus simplement, on utilise ce programme MATLAB : \\
+\newpage
 \begin{lstlisting}[language=Matlab]
     syms Kp Kh s
 
