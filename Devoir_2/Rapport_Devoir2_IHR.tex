@@ -58,42 +58,72 @@
 
 \section{Énoncé 1 : Conception du modèle du mécanisme}
 \subsection{Question 1.1}
-On note les variables d'états sont $x_{1}$, $x_{2}$, $v_{1}$ et $v_{2}$. En effet, une vitesse est la dérivée d'une position, d'où :
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=14cm]{./img/modele_humain-meca_robotique.png}
+    \caption{Modèle du mécanisme robotique et de l'humain \label{fig:ModelMecaRobotHumain}}
+\end{figure}
+
+La \autoref{fig:ModelMecaRobotHumain} présente le mécanisme robotique que nous allons utiliser, où :
+\begin{itemize}
+    \item[$\bullet$] $M_R$ : masse de la charge \textit{[kg]}.
+    \item[$\bullet$] $m_R$ : masse du système \textit{[kg]}.
+    \item[$\bullet$] $K_B$ : constante de raideur des courroies \textit{[N/m]}.
+    \item[$\bullet$] $C_B$ : coefficient d'amortissement des courroies \textit{[$N\cdot s/m$]}.
+    \item[$\bullet$] $K_H$ : constante de raideur de l'humain\textit{[N/m]}.
+    \item[$\bullet$] $C_H$ : coefficient d'amortissement de l'humain \textit{[$N\cdot s/m$]}.
+    \item[$\bullet$] $C_R$ : coefficient de frottement \textit{[$N\cdot s/m$]}.
+    \item[$\bullet$] $F$ : Force commandée par le système \textit{[N]}.
+    \item[$\bullet$] $f_H$ : Force appliquée par l'humain \textit{[N]}.
+    \item[$\bullet$] $x_1$ : position des moteurs \textit{[m]}.
+    \item[$\bullet$] $x_2$ : position de la charge \textit{[m]}.
+    \item[$\bullet$] $v_1$ : vitesse des moteurs \textit{[m/s]}, la dérivée de la position ($v_1 = \dot{x_1}$).
+    \item[$\bullet$] $v_2$ : vitesse de la charge \textit{[m/s]}, la dérivée de la position ($v_2 = \dot{x_2}$).
+\end{itemize}
+
+Ainsi, on déduit les variables d'états ci-dessous.
 \[
-    \begin{pmatrix}
-        x_{1}\\
-        x_{2}\\
-        v_{1}\\
-        v_{2}
-    \end{pmatrix}
+    X =
+    \begin{bmatrix}
+        x_1 \\
+        x_2 \\
+        v_1 \\
+        v_2
+    \end{bmatrix}
     =
-    \begin{pmatrix}
-        x_{1}\\
-        x_{2}\\
-        \dot{x_{1}}\\
-        \dot{x_{2}}
-    \end{pmatrix}
+    \begin{bmatrix}
+        x_1 \\
+        x_2 \\
+        \dot{x_1} \\
+        \dot{x_2}
+    \end{bmatrix}
 \]
 
-
-Ainsi, on déduit les deux équations suivantes.
+En effectuant la somme des forces appliquées sur chaque masse, on obtient le système suivant.
 \[
     \begin{cases}
-        m_{R}\ddot{x_{1}} = F - K_{B}x_{1} + K_{B}x_{2} - C_{B}\dot{x_{1}} + C_{B}\dot{x_{2}} \\
-        M_{R}\ddot{x_{2}} = K_{B}x_{1} - K_{B}x_{2} + C_{B}\dot{x_{1}} - C_{B}\dot{x_{2}} - C_{R}\dot{x_{2}} \\
+        \sum F_{ext/m_R} = m_R\ddot{x_1} \\
+        \sum F_{ext/M_R} = M_R\ddot{x_2} \\
     \end{cases}
-\]
-\[
     \Leftrightarrow
     \begin{cases}
-        \ddot{x_{1}} = \frac{F - K_{B}x_{1} + K_{B}x_{2} - C_{B}\dot{x_{1}} + C_{B}\dot{x_{2}}}{m_{R}} \\
-        \ddot{x_{2}} = \frac{K_{B}x_{1} - K_{B}x_{2} + C_{B}\dot{x_{1}} - C_{B}\dot{x_{2}} - C_{R}\dot{x_{2}}}{M_{R}}
+        m_R\ddot{x_1} = F - K_B x_1 + K_B x_2 - C_B \dot{x_1} + C_B\dot{x_2} \\
+        M_R\ddot{x_2} = K_B x_1 - K_B x_2 + C_B \dot{x_1} - C_B\dot{x_2} - C_R \dot{x_2} \\
     \end{cases}
 \]
 
+\begin{equation}
+    \\ \Leftrightarrow
+    \begin{cases}
+        \ddot{x_1} = \frac{F - K_B x_1 + K_B x_2 - C_B \dot{x_1} + C_B \dot{x_2}}{m_R} \\
+        \ddot{x_2} = \frac{K_B x_1 - K_B x_2 + C_B \dot{x_1} - C_B \dot{x_2} - C_R \dot{x_2}}{M_R}
+    \end{cases}
+    \label{eq:SommeDesForces}
+\end{equation}
 
-Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX+BU$ et $Y=CX+DU$, où $A$, $B$, $C$ et $D$ sont à déterminer.
-\[
+Grâce à celle-ci, on construit les deux équations de fonctionnement du système :
+
+\begin{equation}
     \dot{X}=AX+BU
     \Leftrightarrow
     \begin{bmatrix}
@@ -123,9 +153,10 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
         0
     \end{bmatrix}
     \cdot F
-\]
+    \label{eq:VarEtatXDot}
+\end{equation}
 
-\[
+\begin{equation}
     Y=CX+DU
     \Leftrightarrow
     Y=CX
@@ -145,17 +176,20 @@ Les variables d'état se constitue de deux équations matricielles : $\dot{X}=AX
         \dot{x_{1}}\\
         \dot{x_{2}}
     \end{bmatrix}\\
-\]
+    \label{eq:VarEtatY}
+\end{equation}
+
+L'\autoref{eq:VarEtatY} présente la sortie du système. Dans notre cas, on utilise $x_2$ (la position de la charge) et $v_1$ (la vitesse des moteurs) afin d'asservir notre système. Où $x_2$ permet à l'humain de corriger la trajectoire de la charge et $v_1$ d'asservir les moteurs.
 
 
 \subsection{Question 1.2}
 \begin{figure}[h!]
     \centering
     \includegraphics[width=16cm]{./img/SchemaBlocAvecObs.png}
-    \caption{Schéma bloc du système avec observateur\label{fig:SchemaBlocAvecObs}}
+    \caption{Commande du mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
 \end{figure}
 
-Un observateur est ajouté pour ajuster dynamiquement le gain correcteur $K_{p}$, qui est mis à jour selon la formule suivante :
+Un observateur est ajouté afin d'ajuster dynamiquement le gain correcteur $K_p$, qui est mis à jour selon la formule suivante :
 
 \[
 K_{p}(n+1) = K_{p}(n) \cdot \eta
@@ -293,6 +327,18 @@ L'équation qui donne $K_p$ est :
 \subsection{Question 2.3}
 
 \section{Annexe}
+\subsection{Annexe 1 : Liste des valeurs fixes}
+\begin{itemize}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$M_R$} = 500 $kg$} \textit{(masse de la charge)}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$m_R$} = 50 $kg$} \textit{(masse du système)}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$K_B$} = 40000 $N/m$} \textit{(constante de raideur des courroies)}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$C_B$} = 40 $N\cdot s/m$} \textit{(coefficient d'amortissement des courroies)}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$C_H$} = 23.45 $N\cdot s/m$} \textit{(coefficient d'amortissement de l'humain)}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$C_R$} = 100 $N\cdot s/m$} \textit{(coefficient de frottement)}
+    \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$T$} = 0.1 $s$} \textit{(temps d'échantillonnage)}
+\end{itemize}
+
+
 \subsection{Lien vers le Dépôt GitHub}
 \url{https://github.com/BlueWan14/Cours_IHR/tree/main/Devoir_2}
 
