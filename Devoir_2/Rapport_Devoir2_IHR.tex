@@ -32,18 +32,12 @@
         \vspace*{1cm}
         \includegraphics[width=0.7\textwidth]{./img/image_IHR.png}\\[1cm]
 
-        
-        
-        % Informations des auteurs
-        \vspace{2cm}
-        {\LARGE Constance ALOYAU, Erwan MAWART, Benjamin PELLIEUX}
-        
-        \vspace{0.5cm}
-        {\large PELB28120100, MAWE14050200, ALOC25530200}
-        
-        % Date
-        \vspace{2cm}
-        {\Large \today}
+        \vspace{4.5cm}
+        \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}l c r}
+            {\large Constance ALOYAU} &  & {\large ALOC25530200} \\
+            {\large Erwan MAWART} & {\large 16 novembre 2024} & {\large MAWE14050200} \\
+            {\large Benjamin PELLIEUX} &  & {\large PELB28120100} \\
+        \end{tabular*}
         
         \vfill
     \end{center}
@@ -52,10 +46,12 @@
 \tableofcontents
 \newpage
 
-\section*{Introduction}
+\section{Introduction}
     % à refaire...
     Les vibrations dans un mécanisme robotique, lorsqu’il est manipulé par un opérateur humain, peuvent affecter significativement la qualité et la précision de la tâche réalisée. Nous étudions l'impact perceptuel de ces vibrations lorsqu’un opérateur applique une force à l’aide d’une poignée sur un capteur de force fixé à un robot à un degré de liberté...
 
+
+\newpage
 \section{Énoncé 1 : Conception du modèle du mécanisme}
 \subsection{Question 1.1}
 \begin{figure}[h!]
@@ -70,7 +66,7 @@ La \autoref{fig:ModelMecaRobotHumain} présente le mécanisme robotique que nous
     \item[$\bullet$] $m_R$ : masse du système \textit{[kg]}.
     \item[$\bullet$] $K_B$ : constante de raideur des courroies \textit{[N/m]}.
     \item[$\bullet$] $C_B$ : coefficient d'amortissement des courroies \textit{[$N\cdot s/m$]}.
-    \item[$\bullet$] $K_H$ : constante de raideur de l'humain\textit{[N/m]}.
+    \item[$\bullet$] $K_H$ : coefficient de raideur de l'humain\textit{[N/m]}.
     \item[$\bullet$] $C_H$ : coefficient d'amortissement de l'humain \textit{[$N\cdot s/m$]}.
     \item[$\bullet$] $C_R$ : coefficient de frottement \textit{[$N\cdot s/m$]}.
     \item[$\bullet$] $F$ : Force commandée par le système \textit{[N]}.
@@ -127,29 +123,29 @@ Grâce à celle-ci, on construit les deux équations de fonctionnement du systè
     \dot{X}=AX+BU
     \Leftrightarrow
     \begin{bmatrix}
-        \dot{x_{1}}\\
-        \dot{x_{2}}\\
-        \ddot{x_{1}}\\
-        \ddot{x_{2}}
+        \dot{x_1}\\
+        \dot{x_2}\\
+        \ddot{x_1}\\
+        \ddot{x_2}
     \end{bmatrix}
     =
     \begin{bmatrix}
         0 & 0 & 1 & 0\\
         0 & 0 & 0 & 1\\
-        \frac{-K_{B}}{m_{R}} & \frac{K_{B}}{m_{R}} & \frac{-C_{B}}{m_{R}} & \frac{C_{B}}{m_{R}}\\
-        \frac{K_{B}}{M_{R}} & \frac{-K_{B}}{M_{R}} & \frac{C_{B}}{M_{R}} & \frac{-(C_{B}+C_{R})}{M_{R}}\\
+        \frac{-K_B}{m_R} & \frac{K_B}{m_R} & \frac{-C_B}{m_R} & \frac{C_B}{m_R}\\
+        \frac{K_B}{M_R} & \frac{-K_B}{M_R} & \frac{C_B}{M_R} & \frac{-(C_B+C_R)}{M_R}\\
     \end{bmatrix}
     \begin{bmatrix}
-        x_{1}\\
-        x_{2}\\
-        \dot{x_{1}}\\
-        \dot{x_{2}}
+        x_1\\
+        x_2\\
+        \dot{x_1}\\
+        \dot{x_2}
     \end{bmatrix}
     +
     \begin{bmatrix}
         0\\
         0\\
-        \frac{1}{m_{R}}\\
+        \frac{1}{m_R}\\
         0
     \end{bmatrix}
     \cdot F
@@ -162,8 +158,8 @@ Grâce à celle-ci, on construit les deux équations de fonctionnement du systè
     Y=CX
     \Leftrightarrow
     \begin{bmatrix}
-        x_{2}\\
-        \dot{x_{1}}
+        x_2\\
+        \dot{x_1}
     \end{bmatrix}
     =
     \begin{bmatrix}
@@ -171,10 +167,10 @@ Grâce à celle-ci, on construit les deux équations de fonctionnement du systè
         0 & 0 & 1 & 0
     \end{bmatrix}
     \begin{bmatrix}
-        x_{1}\\
-        x_{2}\\
-        \dot{x_{1}}\\
-        \dot{x_{2}}
+        x_1\\
+        x_2\\
+        \dot{x_1}\\
+        \dot{x_2}
     \end{bmatrix}\\
     \label{eq:VarEtatY}
 \end{equation}
@@ -183,49 +179,18 @@ L'\autoref{eq:VarEtatY} présente la sortie du système. Dans notre cas, on util
 
 
 \subsection{Question 1.2}
+Lors d'une étude précédente, nous nous penchions sur la détectection des vibrations générées par le système lorsque l'humain se régédifie. Pour cela, nous analysions la vitesse des moteurs pour en extraire des caractéristiques temporelles et/ou fréquentielles qui nous permettent de déterminer la présence des vibrations. \\
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=16cm]{./img/SchemaBlocAvecObs.png}
-    \caption{Commande du mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
+    \caption{Commande des mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
 \end{figure}
 
-Un observateur est ajouté afin d'ajuster dynamiquement le gain correcteur $K_p$, qui est mis à jour selon la formule suivante :
+Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \ref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
 
-\[
-K_{p}(n+1) = K_{p}(n) \cdot \eta
-\]
+Dans Simulink, on représentera ce bloc avec le programme suivant :
 
-Où
-\[
-\eta =
-\begin{cases}
-    \eta_{\text{min}} & \text{si } \eta' \leq \eta_{\text{min}} \\
-    \eta' & \text{si } \eta' > \eta_{\text{min}}
-\end{cases}
-\]
-
-et
-
-\[
-\eta' =
-\begin{cases}
-    1 & \text{si } V \geq V_{\text{min}} \\
-    0 & \text{si } V \geq V_{\text{max}} \\
-    \frac{V_{\text{max}} - V}{V_{\text{max}} - V_{\text{min}}} & \text{sinon}
-\end{cases}
-\]
-
-De plus,
-
-\[
-V =
-\begin{cases}
-    \lambda \sum_{i=1}^{q-1} \frac{\left| y_{1,i+1} - y_{1,i} \right|}{t_{1,i+1} - t_{1,i}} & \text{si } q \geq 2 \\
-    0 & \text{si } q < 2
-\end{cases}
-\]
-
-Avec $\eta_{\text{min}}$ une valeur définie proche de 0, $V_{\text{min}} = \frac{\lambda}{2}$, $V_{\text{max}} = V_{\text{min}} + \lambda$, $\lambda$ un coefficient d’amplitude, $q$ représentant le nombre d’extremums présents dans le signal, $y$ l’amplitude du signal correspondant à l'${i}^{\text{ème}}$ extremum, et $t$ le temps correspondant.
 
 \subsection{Question 1.3}
 On a : \\
@@ -319,6 +284,7 @@ L'équation qui donne $K_p$ est :
 
 
 
+\newpage
 \section{Énoncé 2 : Simulation}
 \subsection{Question 2.1}
 
@@ -326,6 +292,9 @@ L'équation qui donne $K_p$ est :
 
 \subsection{Question 2.3}
 
+
+
+\newpage
 \section{Annexe}
 \subsection{Annexe 1 : Liste des valeurs fixes}
 \begin{itemize}
