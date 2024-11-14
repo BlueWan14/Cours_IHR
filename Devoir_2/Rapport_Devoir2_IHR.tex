@@ -60,9 +60,11 @@
     \newpage
     
     \section{Introduction}
-        % à refaire...
-        Les vibrations dans un mécanisme robotique, lorsqu’il est manipulé par un opérateur humain, peuvent affecter significativement la qualité et la précision de la tâche réalisée. Nous étudions l'impact perceptuel de ces vibrations lorsqu’un opérateur applique une force à l’aide d’une poignée sur un capteur de force fixé à un robot à un degré de liberté...
-    
+    Les vibrations dans un mécanisme robotique manipulé par un opérateur humain peuvent significativement compromettre la précision et la qualité de la tâche effectuée. Lorsque l’opérateur applique une force via une poignée équipée d’un capteur, des vibrations non désirées peuvent survenir, surtout lorsque l'opérateur ajuste la rigidité de son bras. Ces vibrations perturbent non seulement la performance mais réduisent aussi le confort de l’utilisateur.
+
+    Dans le cadre de ce projet, nous cherchons à modéliser et analyser l'impact perceptuel de ces vibrations en interaction humain-robot (IHR). Notre approche implique le développement d'un observateur de vibrations capable de détecter et segmenter les parties du signal problématiques, permettant ainsi un ajustement dynamique d’un contrôleur proportionnel en fonction de l'indice de vibration mesuré. L’objectif est de minimiser ces vibrations, tout en tenant compte de l’expérience ressentie par l’opérateur.
+
+    Ce rapport aborde plusieurs aspects de la conception et de la simulation du modèle du mécanisme, incluant la formulation des équations d’état du système, l’implémentation d’un critère de stabilité basé sur le critère de Routh-Hurwitz, ainsi que la configuration de la boucle de contrôle pour limiter les vibrations. Nous explorons également la détection autonome des caractéristiques vibratoires à travers une simulation pour tester l'efficacité de notre modèle dans des scénarios variés.
     
     \newpage
     \section{Énoncé 1 : Conception du modèle du mécanisme}
