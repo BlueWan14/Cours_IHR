@@ -1,4 +1,4 @@
-function [BoucleVitesse1, Boucle1] = Calc_Sys()
+function [Boucle_NoKh, Boucle1] = Calc_Sys()
     syms MR mR x2 x1 Kb Cb CR F s
     a = MR*s^2*x2 == Kb*x1-Kb*x2+Cb*x1*s-Cb*x2*s-CR*x2*s;
     b = mR*s^2*x1 == F-Kb*x1+Kb*x2-Cb*x1*s+Cb*x2*s;
@@ -17,5 +17,6 @@ function [BoucleVitesse1, Boucle1] = Calc_Sys()
     Admittance = 1/(m*s+c);
     
     Boucle0 = Humain*Admittance*BoucleVitesse1*((MR*s^2+Kb+Cb*s+CR*s)*s)^(-1)*(Kb+Cb*s);
+    Boucle_NoKh = Admittance*BoucleVitesse1*((MR*s^2+Kb+Cb*s+CR*s)*s)^(-1)*(Kb+Cb*s);
     Boucle1 = collect(simplify(Boucle0*(1+Boucle0)^(-1)), s);
 end
