@@ -9,6 +9,6 @@
 *.log
 
 Devoir_2/answer_files/*
-!Devoir_2/answer_files/*.m
+!Devoir_2/answer_files/system_config.m
+!Devoir_2/answer_files/calcRouthHurwitz.m
 !Devoir_2/answer_files/*.slx
-Devoir_2/answer_files/Calc_Sys.m
