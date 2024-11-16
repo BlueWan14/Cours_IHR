@@ -27,10 +27,3 @@ Kb = 40000;     % N/m       Constante de raideur des courroies
 
 
 Kh_init = Kh/2;
-
-[A, B, C, D] = calcIAD(Kb, Cb, CR, m, MR);
-
-%Gx1 = tf([MR (Cb+CR) Kb], [MR*mR (Cb*mR+CR*mR+Cb*MR) (Kb*mR+Cb*CR+Kb*MR) CR*Kb]);
-%Gx2 = tf([Cb Kb], [MR*mR (Cb*mR+CR*mR+Cb*MR) (Kb*mR+Cb*CR+Kb*MR) CR*Kb]);
-%[A_x1, B_x1, C_x1, D_x1] = tf2ss(Gx1.num{1}, Gx1.den{1})
-%[A_x2, B_x2, C_x2, D_x2] = tf2ss(Gx2.num{1}, Gx2.den{1})

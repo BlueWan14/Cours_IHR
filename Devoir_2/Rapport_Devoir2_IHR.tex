@@ -62,7 +62,7 @@
     \section{Introduction}
     Les vibrations dans un mécanisme robotique manipulé par un opérateur humain peuvent significativement compromettre la précision et la qualité de la tâche effectuée. Lorsque l’opérateur applique une force via une poignée équipée d’un capteur, des vibrations non désirées peuvent survenir, surtout lorsque l'opérateur ajuste la rigidité de son bras. Ces vibrations perturbent non seulement la performance mais réduisent aussi le confort de l’utilisateur.
 
-    Dans le cadre de ce projet, nous cherchons à modéliser et analyser l'impact perceptuel de ces vibrations en interaction humain-robot (IHR). Notre approche implique le développement d'un observateur de vibrations capable de détecter et segmenter les parties du signal problématiques, permettant ainsi un ajustement dynamique d’un contrôleur proportionnel en fonction de l'indice de vibration mesuré. L’objectif est de minimiser ces vibrations, tout en tenant compte de l’expérience ressentie par l’opérateur.
+    Dans le cadre de ce projet, nous cherchons à modéliser et analyser l'impact perceptuel de ces vibrations en interaction humain-robot. Notre approche implique le développement d'un observateur de vibrations capable de détecter et segmenter les parties du signal problématiques, permettant ainsi un ajustement dynamique d’un contrôleur proportionnel en fonction de l'indice de vibration mesuré. L’objectif est de minimiser ces vibrations, tout en tenant compte de l’expérience ressentie par l’opérateur.
 
     Ce rapport aborde plusieurs aspects de la conception et de la simulation du modèle du mécanisme, incluant la formulation des équations d’état du système, l’implémentation d’un critère de stabilité basé sur le critère de Routh-Hurwitz, ainsi que la configuration de la boucle de contrôle pour limiter les vibrations. Nous explorons également la détection autonome des caractéristiques vibratoires à travers une simulation pour tester l'efficacité de notre modèle dans des scénarios variés.
     
@@ -209,7 +209,7 @@
     
     
     \subsection{Question 1.3}
-    Le critère de Routh-Hurwitz est une méthode mathétique permettant déterminer rapidement la stabilité d'un système. Elle consiste à générer un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
+    Le critère de Routh-Hurwitz est une méthode mathématique permettant déterminer rapidement la stabilité d'un système. Elle consiste à générer un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
     
     \begin{table}[ht]
         \centering
@@ -254,11 +254,13 @@
         \item[$\bullet$] etc.
     \end{itemize} 
     
-    On utilise cette méthode afin de déterminer la plage de valeurs des gain $K_p$ et $K_h$. Afin de construire le critère de Routh-Hurwitz plus simplement, on utilise cette fonction dans Matlab : \\
+    On utilise cette méthode afin de déterminer la plage de valeurs des gain $K_p$. Afin de construire cette table plus simplement, on utilise cette fonction dans Matlab : \\
     \begin{lstlisting}[label={code:fctCritRH}, caption={Fonction Matlab génération du critère de Routh-Hurwitz}, language=Matlab]
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parametres :                                        %
     %   - TF : la fonction de transfert a analyser        %
+    %   - Oldvars : les variables a remplacer             %
+    %   - Newvars : les valeurs a implementer             %
     %   - s : la variable de Laplace                      %
     % Sortie :                                            %
     %   - S : le tableau construit                        %
@@ -291,171 +293,28 @@
         S = simplify(subs(S, Oldvars, Newvars));
 
         % Affichage du tableau ============================
-        disp("Tableau du critere de Routh-Hurwitz :")
+        disp('Tableau du critere de Routh-Hurwitz :')
         disp(S)
     end
     \end{lstlisting}
-    
-    \subsubsection{Boucle de vitesse} \label{sec:boucleVit}
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=8cm]{./img/cmd_meca_rob_hum_vit.png}
-        \caption{Commande du mécanisme robotique}
-        \label{fig:SchemaBlocMeca}
-    \end{figure}
-    Dans un premier temps, on étudie uniquement la plage du gain $K_p$ en se focalisant sur la boucle de vitesse présentée à la \autoref{fig:SchemaBlocMeca}. Nous permettant ainsi d'obtenir le tableau : 
-    \begin{table}[ht]
-        \centering
-        \[
-        \begin{array}{|c|c c|}
-            \hline
-            s^4 & 2500 & \dots \\
-            \hline
-            s^3 & 27700 & \dots \\
-            \hline
-            s^2 & \frac{135000 \cdot K_p + 56889800}{277} & \dots \\
-            \hline
-            s^1 & \frac{94500 \cdot K_p^2 + 13627942860 \cdot K_p + 6219337396000}{675 \cdot K_p + 284449} & \dots \\
-            \hline
-            s^0 & 40000 \cdot K_p + 4000000 & \dots \\
-            \hline
-        \end{array}
-        \]
-        \caption{Première colonne du critère de Routh-Hurwitz pour la boucle de vitesse}
-        \label{tab:table_meca_critRH}
-    \end{table}
-    
-    On note deux constantes positives dans le \autoref{tab:table_meca_critRH}, ainsi pour éviter les changements de signes, et donc, s'assurer de la stabilité, on cherche $K_p$ afin que tous les termes soient positifs.
-    
-    \begin{itemize}
-        \item[$\mathbf{s^2 :}$] \begin{equation}
-                \frac{135000 \cdot K_p + 56889800}{277} > 0
-                \Leftrightarrow \boxed{
-                    K_p > -\frac{284449}{675} \approx -421.41
-                }
-            \end{equation} \\
-        \item[$\mathbf{s^1 :}$] \[
-                \frac{94500 \cdot K_p^2 + 13627942860 \cdot K_p + 6219337396000}{675 \cdot K_p + 284449} > 0
-            \]\[
-                \Leftrightarrow
-                \begin{cases}
-                    94500 \cdot K_p^2 + 13627942860 \cdot K_p + 6219337396000 > 0 \\
-                    675 \cdot K_p + 284449 > 0
-                \end{cases}
-            \]\[
-                \Leftrightarrow
-                \begin{cases}
-                    \frac{-681397143 - \sqrt{681397143^2 + 5877273839220000}}{9450} < K_p < \frac{-681397143 + \sqrt{681397143^2 + 5877273839220000}}{9450} \\
-                    K_p > -\frac{284449}{675}
-                \end{cases}
-            \] \begin{equation}
-                \approx
-                \begin{cases}
-                    -144665.97 < K_p < 454.93 \\
-                    K_p > -421.41
-                \end{cases}
-                \Rightarrow \boxed{
-                    K_p \in \left< -421.41, 454.93 \right>
-                }
-            \end{equation} \\
-        \item[$\mathbf{s^0 :}$] \begin{equation}
-                40000 \cdot K_p + 4000000 > 0
-                \Leftrightarrow \boxed{
-                    K_p > -\frac{4000000}{40000} = -100
-                }
-            \end{equation}
-    \end{itemize}
-    
-    Cela nous permet de déduire que $\mathbf{-100 < K_p < 454.93}$.
-    
-    \subsubsection{Boucle complète}
-    \begin{figure}[h!]
-        \centering
-        \includegraphics[width=14cm]{./img/cmd_meca_rob_hum.png}
-        \caption{Commande des mécanisme robotique et humain}
-        \label{fig:SchemaBlocComplet}
-    \end{figure}
-    
-    Une fois la plage du gain $K_p$ trouvée, on utilise la boucle complète, présentée à la \autoref{fig:SchemaBlocComplet}. Grâce à la même méthodologie qu'avec la \nameref{sec:boucleVit}, nous pourrons ainsi trouver la plage de $K_h$.
-    
-    \begin{itemize}
-        \item[$\mathbf{s^4 :}$] \begin{equation}
-                \frac{1350000 \cdot K_p + 652552000}{151} > 0
-                \Leftrightarrow \boxed{
-                    K_H > -\frac{326276}{675} \approx -483.37
-                }
-            \end{equation} \\
-        \item[$\mathbf{s^3 :}$] \[
-                \frac{303110947200 \cdot K_p + 8640000 \cdot K_p^2 + 151000 \cdot K_p \cdot K_H + 136953189168000}{675 \cdot K_p + 326276} > 0
-            \]\[
-                \Leftrightarrow
-                \begin{cases}
-                    303110947200 \cdot K_p + \dots + 151000 \cdot K_p \cdot K_H + 136953189168000 > 0 \\
-                    675 \cdot K_p + 326276 > 0
-                \end{cases}
-            \]\begin{itemize}
-                \item[$\mathbf{K_p = -100 :}$] \[
-                        \Rightarrow 303110947200 \cdot (-100) + \dots + 136953189168000 > 0
-                    \]\[
-                        \Leftrightarrow K_H < \frac{30311094720000 - 136953189168000 - 86400000000}{-15100000}
-                    \] \begin{equation}
-                        \Leftrightarrow \boxed{K_H < 7068110}
-                    \end{equation} \\
-                \item[$\mathbf{K_p = 454.93 :}$] \[
-                        \Rightarrow 303110947200 \cdot (454.93) + \dots + 136953189168000 > 0
-                    \] \begin{equation}
-                        \Leftrightarrow \boxed{K_H > -4027050}
-                    \end{equation} \\\\
-            \end{itemize}
-        \item[$\mathbf{s^2 :}$] \[
-                \frac{-2500 \cdot K_H^2 \cdot K_p^2 - 1350000 \cdot K_H \cdot K_p^3 + \dots + 356512321418387200000}{1515554736 \cdot K_p + 43200 \cdot K_p^2 + 755 \cdot K_H \cdot K_p + 684765945840} > 0
-            \]\begin{itemize}
-                \item[$\mathbf{K_p = -100 :}$] \[ \Rightarrow \begin{cases}
-                            -2500 \cdot K_H^2 \cdot (-100)^2 -  \dots + 356512321418387200000 > 0 \\
-                            1515554736 \cdot (-100) + \dots + 755 \cdot K_H \cdot (-100) + 684765945840 > 0
-                    \end{cases} \] \begin{equation}
-                        \Leftrightarrow \begin{cases}
-                        48345 < K_H < 179295623 \\
-                        K_H < 7068110
-                    \end{cases} \Rightarrow \boxed{K_H \in \left< 48345, 7068110 \right>} \end{equation} \\
-                \item[$\mathbf{K_p = 454.93 :}$] \[ \Rightarrow \begin{cases}
-                        -2500 \cdot K_H^2 \cdot (454.93)^2 -  \dots + 356512321418387200000 > 0 \\
-                        1515554736 \cdot (454.93) + \dots + 755 \cdot K_H \cdot (454.93) + 684765945840 > 0
-                    \end{cases} \] \begin{equation}
-                        \Leftrightarrow \begin{cases}
-                        -36000 < K_H < 62900000 \\
-                        K_H > -4027050
-                    \end{cases} \Rightarrow \boxed{K_H \in \left< -36000, 62900000 \right>} \end{equation} \\
-            \end{itemize}
-        \item[$\mathbf{s^1 :}$] \[
-                \frac{-(1000 \cdot K_H^3 \cdot K_p^3 + \dots - 285209857134709760000000000}{-25 \cdot K_H^2 \cdot K_p^2 - 13500 \cdot K_H \cdot K_p^3 + \dots + 3565123214183872000} > 0
-            \]\begin{itemize}
-                \item[$\mathbf{K_p = -100 :}$] \[ \Rightarrow \begin{cases}
-                            -(1000 \cdot K_H^3 \cdot (-100)^3 + \dots - 285209857134709760000000000 > 0 \\
-                            -25 \cdot K_H^2 \cdot (-100)^2 - \dots + 3565123214183872000 > 0
-                    \end{cases} \] \begin{equation}
-                        \Leftrightarrow \begin{cases}
-                        ??? < K_H < ??? \\
-                        ??? < K_H < ???
-                    \end{cases} \Rightarrow \boxed{K_H \in \left< ???, ??? \right>} \end{equation} \\
-                \item[$\mathbf{K_p = 454.93 :}$] \[ \Rightarrow \begin{cases}
-                            -(1000 \cdot K_H^3 \cdot (454.93)^3 + \dots - 285209857134709760000000000 > 0 \\
-                            -25 \cdot K_H^2 \cdot (454.93)^2 - \dots + 3565123214183872000 > 0
-                    \end{cases} \] \begin{equation}
-                        \Leftrightarrow \begin{cases}
-                        ??? < K_H < ??? \\
-                        ??? < K_H < ???
-                    \end{cases} \Rightarrow \boxed{K_H \in \left< ???, ??? \right>} \end{equation} \\
-            \end{itemize}
-        \item[$\mathbf{s^0 :}$] \[
-                40000 \cdot K_H \cdot K_p > 0
-            \] \begin{itemize}
-                \item[$\mathbf{K_p = -100 :}$] \begin{equation} \Rightarrow \boxed{K_H < 0} \end{equation} \\
-                \item[$\mathbf{K_p = 454.93 :}$] \begin{equation} \Rightarrow \boxed{K_H > 0} \end{equation} \\
-            \end{itemize}
-    \end{itemize}
 
-    À noter qu'on considère $K_H > 0$ car la régidité humaine ne peut pas être négative. Par conséquent, $\mathbf{K_H \in \left< 0, 62300000 \right>}$ et $\mathbf{K_p \in \left< 0, 454.93 \right>}$.
+    Les gains $K_p$ et $K_H$ étant dépendants l'un de l'autre, leur plage de valeurs varie en fonction de l'autre. Par conséquent, il nous est obligatoire de fixer l'un des deux. Ici, fixons $K_H = 50 N/m$, s'assurant ainsi la stabilité du système.
+    
+    En utilisant les valeurs données en \hyperref[Annexe:ValList]{annexe 1} dans le tableau du critère de Routh-Hurwitz, on obtient donc cinq coefficients contenant $K_p$. Parmis ceux-ci, le critère $S^2$ devient négatif à $K_p = 90$, comme présenté à la \autoref{fig:CoefS2}. Ainsi, on déduit que $K_p \in \left< 0, 90 \right>$.
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=16cm]{./img/plage_coefKp.png}
+        \caption{Critère de Routh-Hurwitz $S^2$ en fonction de $K_p$\label{fig:CoefS2}}
+    \end{figure}
+
+    Afin de confirmer cette valeur, nous pouvons utiliser le lieu des racines. Cette méthode consiste à faire varier un gain en entrée du système afin de déterminer le moment auquel ce-dernier devient astable.
+    
+    Dans notre cas, le gain variable est $K_H$ et on fixe $K_p = 90$, condition limite déterminée à la \autoref{fig:CoefS2}. En traçant le lieu des racines, comme montré à la \autoref{fig:LieuRacineKh}, on remarque que le système est stable jusqu'à $K_H \approx 50$ ($K_H = 46.9532$ au point de mesure).
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=14.5cm]{./img/planRacine_Kh.png}
+        \caption{Lieu des racines du système\label{fig:LieuRacineKh}}
+    \end{figure}
 
     
     
@@ -471,15 +330,17 @@
     
     \newpage
     \section{Annexe}
-    \subsection{Annexe 1 : Liste des valeurs fixes}
+    \subsection{Annexe 1 : Liste des valeurs fixes} \label{Annexe:ValList}
     \begin{itemize}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$M_R$} = 500 $kg$} \textit{(masse de la charge)}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$m_R$} = 50 $kg$} \textit{(masse du système)}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$K_B$} = 40000 $N/m$} \textit{(constante de raideur des courroies)}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$C_B$} = 40 $N\cdot s/m$} \textit{(coefficient d'amortissement des courroies)}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$C_H$} = 23.45 $N\cdot s/m$} \textit{(coefficient d'amortissement de l'humain)}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$C_R$} = 100 $N\cdot s/m$} \textit{(coefficient de frottement)}
-        \item[$$] \makebox[5cm][l]{\makebox[.6cm][l]{$T$} = 0.1 $s$} \textit{(temps d'échantillonnage)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$M_R$} = 500 $kg$} \textit{(masse de la charge)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$m_R$} = 50 $kg$} \textit{(masse du système)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$m_v$} = 20 $kg$} \textit{(masse ressentie)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$K_B$} = 40000 $N/m$} \textit{(constante de raideur des courroies)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_B$} = 40 $N\cdot s/m$} \textit{(coefficient d'amortissement des courroies)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_H$} = 23.45 $N\cdot s/m$} \textit{(coefficient d'amortissement de l'humain)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_R$} = 100 $N\cdot s/m$} \textit{(coefficient de frottement)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_v$} = 20 $N\cdot s/m$} \textit{(coefficient d'amortissement vituel)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$T$} = 0.1 $s$} \textit{(temps d'échantillonnage)}
     \end{itemize}
     
     
