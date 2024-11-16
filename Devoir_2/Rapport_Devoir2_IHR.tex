@@ -2,6 +2,7 @@
 \usepackage[francais]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{mathptmx}
 \usepackage{graphicx}
 \usepackage{geometry}
 \usepackage{amsmath}
@@ -10,6 +11,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{rotating}
+\usepackage{subcaption}
 
 \setcounter{secnumdepth}{0}
 \hypersetup{colorlinks=true, linkcolor=black}
@@ -29,6 +31,11 @@
 }
 \lstset{style=mystyle}
 
+\captionsetup{font={
+    footnotesize,
+    color=gray
+}}
+
 \begin{document}
     \selectlanguage{french}
     
@@ -47,9 +54,9 @@
     
             \vspace{4.5cm}
             \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}l c r}
-                {\large Constance ALOYAU} &  & {\large ALOC25530200} \\
-                {\large Erwan MAWART} & {\large 16 novembre 2024} & {\large MAWE14050200} \\
-                {\large Benjamin PELLIEUX} &  & {\large PELB28120100} \\
+                {\small Constance ALOYAU} &  & {\small ALOC25530200} \\
+                {\small Erwan MAWART} & {\normalsize 16 novembre 2024} & {\small MAWE14050200} \\
+                {\small Benjamin PELLIEUX} &  & {\small PELB28120100} \\
             \end{tabular*}
             
             \vfill
@@ -72,7 +79,10 @@
     \begin{figure}[h!]
         \centering
         \includegraphics[width=14cm]{./img/modele_humain-meca_robotique.png}
-        \caption{Modèle du mécanisme robotique et de l'humain \label{fig:ModelMecaRobotHumain}}
+        \caption{
+            Modèle du mécanisme robotique et de l'humain 
+            \label{fig:ModelMecaRobotHumain}
+        }
     \end{figure}
     
     La \autoref{fig:ModelMecaRobotHumain} présente le mécanisme robotique que nous allons utiliser, où :
@@ -339,7 +349,7 @@
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_B$} = 40 $N\cdot s/m$} \textit{(coefficient d'amortissement des courroies)}
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_H$} = 23.45 $N\cdot s/m$} \textit{(coefficient d'amortissement de l'humain)}
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_R$} = 100 $N\cdot s/m$} \textit{(coefficient de frottement)}
-        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$C_v$} = 20 $N\cdot s/m$} \textit{(coefficient d'amortissement vituel)}
+        \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$c_v$} = 20 $N\cdot s/m$} \textit{(coefficient d'amortissement vituel)}
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$T$} = 0.1 $s$} \textit{(temps d'échantillonnage)}
     \end{itemize}
     
