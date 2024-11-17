@@ -2,7 +2,7 @@ clear;
 clc;
 
 %Temps de simulation
-sim_time = 200;     % s
+sim_time = 150;     % s
 buffer_size = 128;  % Taille de la mémoire tempon de l'observeur
 
 
