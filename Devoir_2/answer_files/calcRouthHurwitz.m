@@ -1,6 +1,7 @@
 close all
 system_config
 clear Kp Kh
+FontName = 'Times';
 
 [Boucle_ouverte, Boucle] = Calc_Sys();
 
@@ -19,8 +20,9 @@ for i = 1:length(S_boucle(:,1))
         subplot(3, 2, i)
         plot(Kp, S_calc, 'LineWidth', 2)
         yline(0, '--')
-        xlabel("Kp")
+        xlabel('Kp')
         ylabel("Critère de Routh-Hurwitz S^" + i)
+        fontname(FontName)
     end
 end
 hold off
@@ -31,14 +33,18 @@ TF = subs( ...
     [sym('MR') sym('mR') sym('Kb') sym('Cb') sym('CR') sym('T') sym('m') sym('c') sym('Kp')], ...
     [MR mR Kb Cb CR T m c 90] ...
 );
+clear s
 TFFun = matlabFunction(TF);
 TFFun = str2func(regexprep(func2str(TFFun), '\.([/^\\*])', '$1'));
 figure;
-rlocus(tf(TFFun(tf('s'))))
-xlim([-0.5, 0.5])
-ylim([-2,2])
-rlocfind(tf(TFFun(tf('s'))))
-
+sys = tf(TFFun(tf('s')));
+rlocus(sys)
+title('')
+xlabel('Imaginaires')
+ylabel('Réels')
+axis([-0.5, 0.5, -2, 2])
+fontname(FontName)
+[K, poles] = rlocfind(sys);
 
 
 function [Boucle_NoKh, Boucle1] = Calc_Sys()
@@ -75,6 +81,6 @@ function S = calcTabRH(TF, Oldvars,  Newvars, s)
     end
     S = simplify(subs(S, Oldvars, Newvars));
 
-    disp("Tableau du critère de Routh-Hurwitz :")
+    disp('Tableau du critère de Routh-Hurwitz :')
     disp(S)
 end
