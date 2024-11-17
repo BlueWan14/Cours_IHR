@@ -1,5 +1,5 @@
 \documentclass[a4paper,12pt]{article}
-\usepackage[francais]{babel}
+\usepackage[french]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{mathptmx}
@@ -76,7 +76,7 @@
     \newpage
     \section{Énoncé 1 : Conception du modèle du mécanisme}
     \subsection{Question 1.1}
-    \begin{figure}[h!]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=14cm]{./img/modele_humain-meca_robotique.png}
         \caption{
@@ -206,7 +206,7 @@
     \subsection{Question 1.2}
     Lors d'une étude précédente, nous nous penchions sur la détectection des vibrations générées par le système lorsque l'humain se régédifie. Pour cela, nous analysions la vitesse des moteurs pour en extraire des caractéristiques temporelles et/ou fréquentielles qui nous permettent de déterminer la présence des vibrations. \\
     
-    \begin{figure}[h!]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/SchemaBlocAvecObs.png}
         \caption{Commande des mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
@@ -214,8 +214,7 @@
     
     Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
     
-    Dans Simulink, on représentera ce bloc avec le programme suivant :
-    % à compléter
+    Dans Simulink, on représentera ce bloc avec l'architecture et la fonction contenues dans l'\hyperref[Annexe:modelObs]{annexe 5}.
     
     
     \subsection{Question 1.3}
@@ -311,7 +310,7 @@
     Les gains $K_p$ et $K_H$ étant dépendants l'un de l'autre, leur plage de valeurs varie en fonction de l'autre. Par conséquent, il nous est obligatoire de fixer l'un des deux. Ici, fixons $K_H = 50 N/m$, s'assurant ainsi la stabilité du système.
     
     En utilisant les valeurs données en \hyperref[Annexe:ValList]{annexe 1} dans le tableau du critère de Routh-Hurwitz, on obtient donc cinq coefficients contenant $K_p$. Parmis ceux-ci, le critère $S^2$ devient négatif à $K_p = 90$, comme présenté à la \autoref{fig:CoefS2}. Ainsi, on déduit que $K_p \in \left< 0, 90 \right>$.
-    \begin{figure}[h!]
+    \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/plage_coefKp.png}
         \caption{Critère de Routh-Hurwitz $S^2$ en fonction de $K_p$\label{fig:CoefS2}}
@@ -319,15 +318,15 @@
 
     Afin de confirmer cette valeur, nous pouvons utiliser le lieu des racines. Cette méthode consiste à faire varier un gain en entrée du système afin de déterminer le moment auquel ce-dernier devient astable.
     
-    Dans notre cas, le gain variable est $K_H$ et on fixe $K_p = 90$, condition limite déterminée à la \autoref{fig:CoefS2}. En traçant le lieu des racines, comme montré à la \autoref{fig:LieuRacineKh}, on remarque que le système est stable jusqu'à $K_H \approx 50$ ($K_H = 46.9532$ au point de mesure).
-    \begin{figure}[h!]
+    Dans notre cas, le gain variable est $K_H$ et on fixe $K_p = 90$, condition limite déterminée à la \autoref{fig:CoefS2}. En traçant le lieu des racines, comme montré à la \autoref{fig:LieuRacineKh}, on remarque que le système est stable jusqu'à $K_H \approx 50$ ($K_H = 46.9532$ au point de mesure noté sur la \autoref{fig:LieuRacineKh}).
+    \begin{figure}[H]
         \centering
-        \includegraphics[width=14.5cm]{./img/planRacine_Kh.png}
+        \includegraphics[width=13cm]{./img/planRacine_Kh.png}
         \caption{Lieu des racines du système\label{fig:LieuRacineKh}}
     \end{figure}
 
-    
-    
+
+
     \newpage
     \section{Énoncé 2 : Simulation}
     \subsection{Question 2.1}
@@ -352,6 +351,83 @@
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$c_v$} = 20 $N\cdot s/m$} \textit{(coefficient d'amortissement vituel)}
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$T$} = 0.1 $s$} \textit{(temps d'échantillonnage)}
     \end{itemize}
+
+
+    \subsection{Annexe 2 : Modèle complet} \label{Annexe:modelComplet}
+    \begin{center}
+        \includegraphics[width=16cm]{./img/model_complet.png}
+    \end{center}
+    Où le bloc "step" \textbf{X} est paramétré avec : 
+    \begin{itemize}
+        \item[$\bullet$] \makebox[2.3cm][l]{"step time"} = 0.5
+        \item[$\bullet$] \makebox[2.3cm][l]{"initial value"} = 0
+        \item[$\bullet$] \makebox[2.3cm][l]{"final value"} = 0.2
+    \end{itemize}
+
+
+    \subsection{Annexe 3 : Modèle humain} \label{Annexe:modelHumain}
+    \begin{center}
+        \includegraphics[width=10cm]{./img/model_humain.png}
+    \end{center}
+    Où les blocs "step" (à gauche) sont paramétrés avec :
+    
+    \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}l l l}
+        \multicolumn{1}{c}{Step haut} & \multicolumn{1}{c}{Step milieu} &\multicolumn{1}{c}{Step bas} \\
+        \hline
+    
+        $\bullet$ \makebox[2.3cm][l]{"step time"} = 0 &
+        $\bullet$ \makebox[2.3cm][l]{"step time"} = 66 &
+        $\bullet$ \makebox[2.3cm][l]{"step time"} = 132 \\
+        
+        $\bullet$ \makebox[2.3cm][l]{"initial value"} = 0 & 
+        $\bullet$ \makebox[2.3cm][l]{"initial value"} = 0 & 
+        $\bullet$ \makebox[2.3cm][l]{"initial value"} = 0 \\
+        
+        $\bullet$ \makebox[2.3cm][l]{"final value"} = 27.5 &
+        $\bullet$ \makebox[2.3cm][l]{"final value"} = 550 &
+        $\bullet$ \makebox[2.3cm][l]{"final value"} = 577.5 \\
+    \end{tabular*}
+    
+
+    \subsection{Annexe 4 : Modèle IAD} \label{Annexe:modelIAD}
+    \begin{center}
+        \includegraphics[width=16cm]{./img/model_IAD.png}
+    \end{center}
+    
+
+    \subsection{Annexe 5 : Modèle observateur} \label{Annexe:modelObs}
+    \begin{center}
+        \includegraphics[width=12cm]{./img/model_observateur.png}
+    \end{center}
+    Où :
+    \begin{itemize}
+        \item[] Le bloc "rate transition" est paramétré avec : 
+            \subitem $\bullet$ \makebox[4.2cm][l]{"initial conditions"} = 0
+            \subitem $\bullet$ \makebox[4.2cm][l]{"ouput port sample time"} = 0.01
+        \item[] Le bloc "buffer" est paramétré avec : 
+            \subitem$\bullet$ \makebox[5.5cm][l]{"ouput buffer size (per channel)"} = 128
+            \subitem$\bullet$ \makebox[5.5cm][l]{"buffer overlap"} = 64
+            \subitem$\bullet$ \makebox[5.5cm][l]{"initial conditions"} = 0
+        \item[] La variable $ec_{max} = 10^{-3}$
+        \item[] Et le bloc "MATLAB Function" contient :
+    \end{itemize}
+    \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Parametres :                                        %
+    %   - u : segment de signal                           %
+    %   - ec_max : ecart-type limite avant vibration      %
+    % Sortie :                                            %
+    %   - y : le coefficient de compensation              %
+    %   - ec : l'ecart-type du segment                    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function [y, ec] = fcn(u, ec_max)
+        % Calcul de l'ecart-type ==========================
+        ec = std(u);
+
+        % Calcul de la compensation =======================
+        y = 1 - ec * (1/ec_max);
+    end
+    \end{lstlisting}
     
     
     \subsection{Lien vers le Dépôt GitHub}

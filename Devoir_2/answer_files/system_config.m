@@ -11,8 +11,8 @@ Kh = 550;           % N/m       Coefficient de raideur de l'humain
 Ch = 23.45;         % N*s/m     Coefficient d'amortissement de l'humain
 
 % Admittance
-c = 20;             % N*s/m
-m = 20;             % kg        Masse virutelle
+cv = 20;            % N*s/m
+mv = 20;            % kg        Masse virutelle
 
 % Imperfections
 T = .1;             % s         Temps d'échantillonage
