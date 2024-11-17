@@ -2,7 +2,7 @@ clear;
 clc;
 
 %Temps de simulation
-sim_time = 150;     % s
+sim_time = 200;     % s
 buffer_size = 128;  % Taille de la mémoire tempon de l'observeur
 
 
@@ -25,8 +25,7 @@ Kb = 40000;         % N/m       Constante de raideur des courroies
 
 
 [A, B, C, D] = calcIAD(Kb, Cb, CR, mR, MR);
-Kp = 10;            % Gain
-ec_max = 16e-4;     % Écart-type limite avant vibrations
+ec_max = 1e-3;      % Écart-type limite avant vibrations
 
 
 
