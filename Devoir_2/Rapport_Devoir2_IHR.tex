@@ -10,7 +10,6 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage{hyperref}
-\usepackage{rotating}
 \usepackage{subcaption}
 
 \setcounter{secnumdepth}{0}
@@ -214,7 +213,7 @@
     
     Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
     
-    Dans Simulink, on représentera ce bloc avec l'architecture et la fonction contenues dans l'\hyperref[Annexe:modelObs]{annexe 5}.
+    Dans Simulink, on représentera ce bloc avec l'architecture et la fonction contenues dans l'\hyperref[Annexe:modelObs]{annexe 7}.
     
     
     \subsection{Question 1.3}
@@ -302,7 +301,7 @@
         S = simplify(subs(S, Oldvars, Newvars));
 
         % Affichage du tableau ============================
-        disp('Tableau du critere de Routh-Hurwitz :')
+        disp("Tableau du critere de Routh-Hurwitz :")
         disp(S)
     end
     \end{lstlisting}
@@ -353,7 +352,203 @@
     \end{itemize}
 
 
-    \subsection{Annexe 2 : Modèle complet} \label{Annexe:modelComplet}
+    \subsection{Annexe 2 : Fichier de calculs des plages de $K_p$ et $K_H$} \label{Annexe:calcRHFile}
+    \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
+    % Initialisation ======================================
+    close all
+    system_config
+    clear Kp Kh
+    FontName = 'Times';
+
+    % Calcul des boucles ==================================
+    [Boucle_ouverte, Boucle] = Calc_Sys();
+
+    % Creation de la table de Routh-Hurwitz ===============
+    syms Kp Kh s
+    S_boucle = calcTabRH(Boucle, [sym('MR') sym('mR') sym('Kb') sym('Cb') sym('CR') sym('T') sym('mv') sym('cv')], [MR mR Kb Cb CR T mv cv], s);
+
+    % Recherche de la plage de valeurs Kp =================
+    Kp = 0:1500;
+    Kh = 50;
+    figure;
+    hold on
+    for i = 1:length(S_boucle(:,1))
+        if ~isempty(find(symvar(S_boucle(i,1)) == sym('Kp'), 1))
+            S_boucle(i,1) = subs(S_boucle(i,1), sym('Kh'), Kh);
+            S_calc = eval(subs(S_boucle(i,1), sym('Kp'), Kp));
+    
+            subplot(3, 2, i)
+            plot(Kp, S_calc, 'LineWidth', 2)
+            yline(0, '--')
+            xlabel('Kp')
+            ylabel("Critere de Routh-Hurwitz S^" + i)
+            fontname(FontName)
+        end
+    end
+    hold off
+    
+    % Recherche de la plage de valeurs Kh =================
+    TF = subs( ...
+        Boucle_ouverte, ...
+        [sym('MR') sym('mR') sym('Kb') sym('Cb') sym('CR') sym('T') sym('mv') sym('cv') sym('Kp')], ...
+        [MR mR Kb Cb CR T mv cv 90] ...
+    );
+    clear s
+    TFFun = matlabFunction(TF);
+    TFFun = str2func(regexprep(func2str(TFFun), '\.([/^\\*])', '$1'));
+    figure;
+    sys = tf(TFFun(tf('s')));
+    rlocus(sys)
+    title("")
+    xlabel("Imaginaires")
+    ylabel("Reels")
+    axis([-0.5, 0.5, -2, 2])
+    fontname(FontName)
+    [K, poles] = rlocfind(sys);
+    
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Parametres :                                        %
+    %   (Aucun)                                           %
+    % Sortie :                                            %
+    %   - Boucle_NoKh : boucle ouverte                    %
+    %   - Boucle1 : boucle fermee                         %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function [Boucle_NoKh, Boucle1] = Calc_Sys()
+        syms MR mR Kb Cb CR Kh Kp T mv cv s
+
+        % Calcul de la boucle de vitesse ==================
+        BoucleVitesse0 = Kp*(MR*s^2+Kb+Cb*s+CR*s)*s*1 / (s * (mR*s^3*MR + mR*s*Kb + mR*s^2*Cb + mR*s^2*CR + Kb*MR*s + Kb*CR + Cb*s^2*MR + Cb*s*CR) * (T*s+1));
+        BoucleVitesse1 = collect(simplify(BoucleVitesse0/(1+BoucleVitesse0)), s);
+        
+        Humain = Kh;
+        Admittance = 1/(mv*s+cv);
+        % Calcul de la boucle complete ====================
+        Boucle0 = Humain * Admittance * BoucleVitesse1 * ((MR*s^2+Kb+Cb*s+CR*s)*s)^(-1) * (Kb+Cb*s);
+        Boucle_NoKh = Admittance * BoucleVitesse1 * ((MR*s^2+Kb+Cb*s+CR*s)*s)^(-1) * (Kb+Cb*s);
+        Boucle1 = collect(simplify(Boucle0*(1+Boucle0)^(-1)), s);
+    end
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Parametres :                                        %
+    %   - TF : la fonction de transfert a analyser        %
+    %   - Oldvars : les variables a remplacer             %
+    %   - Newvars : les valeurs a implementer             %
+    %   - s : la variable de Laplace                      %
+    % Sortie :                                            %
+    %   - S : le tableau construit                        %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function S = calcTabRH(TF, Oldvars,  Newvars, s)
+        % Extraction des coefficients du denominateur =====
+        [~, Den] = numden(TF);
+        [an, terms] = coeffs(Den, s);
+        l_terms = length(terms);
+        l = round(l_terms/2);
+
+        % Creation du tableau =============================
+        S = sym(zeros(l_terms, l));
+        % Ajout des coefficients du denominateur
+        for n=1:l
+            i = n*2;
+            S(l_terms, n) = an(i-1);
+            if i < l_terms
+                S(l_terms-1, n) = an(i);
+            end
+        end
+        % Calcul des autres elements du tableau
+        for k=l_terms-2:-1:1
+            for n=1:l-1
+                S(k, n) = (S(k+1, 1)*S(k+2, n+1)-S(k+2, 1)*S(k+1, n+1))/S(k+1, 1);
+            end
+        end
+
+        % Remplacement des valeurs connues ================
+        S = simplify(subs(S, Oldvars, Newvars));
+
+        % Affichage du tableau ============================
+        disp("Tableau du critere de Routh-Hurwitz :")
+        disp(S)
+    end
+    \end{lstlisting}
+
+
+    \subsection{Annexe 3 : Fichier de configuration de la simulation} \label{Annexe:configSimu}
+    \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
+    clear;
+    clc;
+
+    %Temps de simulation
+    sim_time = 200;     % s
+    % Taille de la memoire tampon de l'observateur
+    buffer_size = 128;
+
+    % Bloc "Modele humain" ================================
+    Kh = 550;           % N/m
+    Ch = 23.45;         % N*s/m
+    
+    % Admittance ==========================================
+    cv = 20;            % N*s/m
+    mv = 20;            % kg
+    
+    % Imperfections =======================================
+    T = .1;             % s
+
+    % Mecanisme ===========================================
+    mR = 50;            % kg
+    MR = 500;           % kg
+    CR = 100;           % N*s/m
+    Cb = 40;            % N*s/m
+    Kb = 40000;         % N/m
+    [A, B, C, D] = calcIAD(Kb, Cb, CR, mR, MR);
+
+    % Observateur =========================================
+    % Ecart-type limite avant vibrations
+    ec_max = 1e-3;
+
+    
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Parametres :                                        %
+    %   - K : ici Kb                                      %
+    %   - C1 : ici Cb                                     %
+    %   - C2 : ici CR                                     %
+    %   - m : ici mR                                      %
+    %   - M : ici MR                                      %
+    % Sortie :                                            %
+    %   - A : la matrice d'etat                           %
+    %   - B : la matrice de commande                      %
+    %   - C : la matrice d'observation                    %
+    %   - D : la matrice d'action directe                 %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function [A, B, C, D] = calcIAD(K, C1, C2, m, M)
+        mK = K / m;
+        mC = C1 / m;
+        MK = K / M;
+    
+        A = [
+             0      0       1       0;
+             0      0       0       1;
+            -mK     mK      -mC     mC;
+             MK     -MK     C1/M    -(C1+C2)/M
+            ];
+    
+        B = [
+             0;
+             0;
+             1/m;
+             0
+            ];
+    
+        C = [
+             0      1       0       0;
+             0      0       1       0;
+            ];
+    
+        D = zeros(2, 1);
+    end
+    \end{lstlisting}
+
+
+    \subsection{Annexe 4 : Modèle complet} \label{Annexe:modelComplet}
     \begin{center}
         \includegraphics[width=16cm]{./img/model_complet.png}
     \end{center}
@@ -365,7 +560,7 @@
     \end{itemize}
 
 
-    \subsection{Annexe 3 : Modèle humain} \label{Annexe:modelHumain}
+    \subsection{Annexe 5 : Modèle humain} \label{Annexe:modelHumain}
     \begin{center}
         \includegraphics[width=10cm]{./img/model_humain.png}
     \end{center}
@@ -389,13 +584,13 @@
     \end{tabular*}
     
 
-    \subsection{Annexe 4 : Modèle IAD} \label{Annexe:modelIAD}
+    \subsection{Annexe 6 : Modèle IAD} \label{Annexe:modelIAD}
     \begin{center}
         \includegraphics[width=16cm]{./img/model_IAD.png}
     \end{center}
     
 
-    \subsection{Annexe 5 : Modèle observateur} \label{Annexe:modelObs}
+    \subsection{Annexe 7 : Modèle observateur} \label{Annexe:modelObs}
     \begin{center}
         \includegraphics[width=12cm]{./img/model_observateur.png}
     \end{center}

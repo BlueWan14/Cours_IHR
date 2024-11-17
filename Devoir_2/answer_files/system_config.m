@@ -3,32 +3,46 @@ clc;
 
 %Temps de simulation
 sim_time = 200;     % s
-buffer_size = 128;  % Taille de la mémoire tempon de l'observeur
+% Taille de la memoire tampon de l'observateur
+buffer_size = 128;
 
+% Bloc "Modele humain" ================================
+Kh = 550;           % N/m
+Ch = 23.45;         % N*s/m
 
-% Modèle humain
-Kh = 550;           % N/m       Coefficient de raideur de l'humain
-Ch = 23.45;         % N*s/m     Coefficient d'amortissement de l'humain
-
-% Admittance
+% Admittance ==========================================
 cv = 20;            % N*s/m
-mv = 20;            % kg        Masse virutelle
+mv = 20;            % kg
 
-% Imperfections
-T = .1;             % s         Temps d'échantillonage
+% Imperfections =======================================
+T = .1;             % s
 
-mR = 50;            % kg        Masse des moteurs
-MR = 500;           % kg        Masse de la charge
-CR = 100;           % N*s/m     Coefficient de frottement du système
-Cb = 40;            % N*s/m     Coefficient d'amortissement des courroies
-Kb = 40000;         % N/m       Constante de raideur des courroies
-
-
+% Mecanisme ===========================================
+mR = 50;            % kg
+MR = 500;           % kg
+CR = 100;           % N*s/m
+Cb = 40;            % N*s/m
+Kb = 40000;         % N/m
 [A, B, C, D] = calcIAD(Kb, Cb, CR, mR, MR);
-ec_max = 1e-3;      % Écart-type limite avant vibrations
+
+% Observateur =========================================
+% Ecart-type limite avant vibrations
+ec_max = 1e-3;
 
 
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Parametres :                                        %
+%   - K : ici Kb                                      %
+%   - C1 : ici Cb                                     %
+%   - C2 : ici CR                                     %
+%   - m : ici mR                                      %
+%   - M : ici MR                                      %
+% Sortie :                                            %
+%   - A : la matrice d'etat                           %
+%   - B : la matrice de commande                      %
+%   - C : la matrice d'observation                    %
+%   - D : la matrice d'action directe                 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [A, B, C, D] = calcIAD(K, C1, C2, m, M)
     mK = K / m;
     mC = C1 / m;
