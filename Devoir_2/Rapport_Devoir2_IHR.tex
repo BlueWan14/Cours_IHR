@@ -64,6 +64,9 @@
     
     \tableofcontents
     \newpage
+    \listoffigures
+    \listoftables
+    \newpage
     
     \section{Introduction}
     Les vibrations dans un mécanisme robotique manipulé par un opérateur humain peuvent significativement compromettre la précision et la qualité de la tâche effectuée. Lorsque l’opérateur applique une force via une poignée équipée d’un capteur, des vibrations non désirées peuvent survenir, surtout lorsque l'opérateur ajuste la rigidité de son bras. Ces vibrations perturbent non seulement la performance mais réduisent aussi le confort de l’utilisateur.
@@ -329,31 +332,37 @@
     \newpage
     \section{Énoncé 2 : Simulation}
     \subsection{Question 2.1}
-    Enfin de confirmer les plages de gains, nous allons faire varier $K_H$ suivant une fonction rampe jusqu'à l'instabilité du système, montré par la \autoref{fig:RespKhRampe}.
-    \begin{figure}[H]
-        \centering
-        \includegraphics[width=16cm]{./img/response_KhRampe.png}
-        \caption{Évolution de la réponse avec $K_H$ selon une rampe\label{fig:RespKhRampe}}
-    \end{figure}
-    Grâce à cette simulation et plus précisément la \autoref{fig:KhRampe},  note donc que $K_H \in \left< 0, 1368 \right>$.
+    Dans le but de confirmer les plages de gains admissibles, nous allons faire varier progressivement la valeur de $K_H$ selon une fonction rampe. Cette approche permettra d'observer l'effet de l'augmentation graduelle de la rigidité sur le système, et de déterminer précisément le seuil auquel une instabilité se manifeste.
     \begin{figure}[H]
         \centering
         \includegraphics[width=15cm]{./img/Kh_Evolution_Rampe.png}
         \caption{Évolution de $K_H$ selon une rampe\label{fig:KhRampe}}
     \end{figure}
     
+    La \autoref{fig:RespKhRampe} présente la réponse du système pour cette simulation, tandis que la \autoref{fig:KhRampe} illustre l'évolution de la rigidité $K_H$ au fil du temps. On observe que la réponse du système tend vers l'infini lorsque $K_H \approx 1368$, ce qui indique une instabilité. Cette observation permet de conclure que la plage de valeurs de $K_H$  admettant un comportement stable est $K_H \in \left< 0, 1350 \right>$.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_KhRampe.png}
+        \caption{Évolution de la réponse avec $K_H$ selon une rampe\label{fig:RespKhRampe}}
+    \end{figure}
+    
     
     \subsection{Question 2.2}
+    Afin de confirmer la stabilité du système, on retire le modèle humain, comme le montre la \autoref{fig:SchemBlocNoHum}. Cela nous permettra d'observer le fonctionnement du système sans perturbations en entrée.
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/SchemaBlocNoHum.png}
         \caption{Évolution de la réponse sans humain\label{fig:SchemBlocNoHum}}
     \end{figure}
+
+    La réponse obtenue présente un gain (cf. \autoref{fig:RespNoHumGain}) sans oscillation, ce qui témoigne d'une stabilité satisfaisante du système. En effet, l'absence d'oscillations suggère que le système atteint son état d'équilibre sans dépasser ou fluctuer autour de la consigne, caractéristique d'un comportement stable et bien contrôlé.
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/response_NoHum_Gain.png}
         \caption{Évolution de la réponse sans humain\label{fig:RespNoHumGain}}
     \end{figure}
+    
+    Cette observation est renforcée par l'analyse du déphasage, illustrée dans la \autoref{fig:RespNoHumPhase}. Au cours de la simulation, aucun déphasage significatif n'est observé, ce qui confirme que la phase de la sortie suit de manière quasi-linéaire l'entrée, sans délai ou retard perceptible.
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/response_NoHum_Phase.png}
@@ -362,21 +371,30 @@
 
     
     \subsection{Question 2.3}
+    Notre dernière simulation consistera à appliquer différentes rigiditées humaine afin d'observer la réponse de notre système. Pour cela, on fait varier $K_H$ selon trois valeurs définies par trois fonctions "step" configurées tel que présenté dans l'\hyperref[Annexe:modelHumain]{annexe 5}.
     \begin{figure}[H]
         \centering
         \includegraphics[width=15cm]{./img/Kh_Evolution_Steps.png}
         \caption{Évolution de $K_H$ selon trois fonctions step\label{fig:KhSteps}}
     \end{figure}
+
+    Sur la réponse présentée dans la \autoref{fig:RespKhSteps}, on observe que l'amortissement du système est satisfaisant tant que la valeur de $K_H$ reste proche de zéro. Cependant, lors de la première augmentation de la rigidité, on note l'apparition progressive d'ondulations. Dès que $K_H$ augmente pour sa valeur finale, ces ondulations deviennent plus prononcées. De plus, des vibrations commencent à se manifester sur le signal $v_1$, qui représente la vitesse des moteurs.
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/response_KhSteps.png}
-        \caption{Évolution de la réponse sans humain\label{fig:RespKhSteps}}
+        \caption{Évolution de la réponse avec $K_H$ selon trois fonctions step\label{fig:RespKhSteps}}
     \end{figure}
     
     
-    
+
     \newpage
-    \section{Annexe}
+    \section{Discussions}
+    \section{Conclusion}
+
+
+
+    \newpage
+    \section{Annexes}
     \subsection{Annexe 1 : Liste des valeurs fixes} \label{Annexe:ValList}
     \begin{itemize}
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$M_R$} = 500 $kg$} \textit{(masse de la charge)}
