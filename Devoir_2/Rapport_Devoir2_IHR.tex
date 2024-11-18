@@ -329,10 +329,49 @@
     \newpage
     \section{Énoncé 2 : Simulation}
     \subsection{Question 2.1}
+    Enfin de confirmer les plages de gains, nous allons faire varier $K_H$ suivant une fonction rampe jusqu'à l'instabilité du système, montré par la \autoref{fig:RespKhRampe}.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_KhRampe.png}
+        \caption{Évolution de la réponse avec $K_H$ selon une rampe\label{fig:RespKhRampe}}
+    \end{figure}
+    Grâce à cette simulation et plus précisément la \autoref{fig:KhRampe},  note donc que $K_H \in \left< 0, 1368 \right>$.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=15cm]{./img/Kh_Evolution_Rampe.png}
+        \caption{Évolution de $K_H$ selon une rampe\label{fig:KhRampe}}
+    \end{figure}
+    
     
     \subsection{Question 2.2}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/SchemaBlocNoHum.png}
+        \caption{Évolution de la réponse sans humain\label{fig:SchemBlocNoHum}}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_NoHum_Gain.png}
+        \caption{Évolution de la réponse sans humain\label{fig:RespNoHumGain}}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_NoHum_Phase.png}
+        \caption{Évolution de la phase de la réponse sans humain\label{fig:RespNoHumPhase}}
+    \end{figure}
+
     
     \subsection{Question 2.3}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=15cm]{./img/Kh_Evolution_Steps.png}
+        \caption{Évolution de $K_H$ selon trois fonctions step\label{fig:KhSteps}}
+    \end{figure}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_KhSteps.png}
+        \caption{Évolution de la réponse sans humain\label{fig:RespKhSteps}}
+    \end{figure}
     
     
     
@@ -399,11 +438,7 @@
     figure;
     sys = tf(TFFun(tf('s')));
     rlocus(sys)
-    title("")
-    xlabel("Imaginaires")
-    ylabel("Reels")
     axis([-0.5, 0.5, -2, 2])
-    fontname(FontName)
     [K, poles] = rlocfind(sys);
     
 
@@ -530,19 +565,16 @@
             -mK     mK      -mC     mC;
              MK     -MK     C1/M    -(C1+C2)/M
             ];
-    
         B = [
              0;
              0;
              1/m;
              0
             ];
-    
         C = [
              0      1       0       0;
              0      0       1       0;
             ];
-    
         D = zeros(2, 1);
     end
     \end{lstlisting}
@@ -550,9 +582,9 @@
 
     \subsection{Annexe 4 : Modèle complet} \label{Annexe:modelComplet}
     \begin{center}
-        \includegraphics[width=16cm]{./img/model_complet.png}
+        \includegraphics[width=24cm, angle=-90]{./img/model_complet.png}
     \end{center}
-    Où le bloc "step" \textbf{X} est paramétré avec : 
+    Où le bloc "step" (\textbf{X}) est paramétré avec : 
     \begin{itemize}
         \item[$\bullet$] \makebox[2.3cm][l]{"step time"} = 0.5
         \item[$\bullet$] \makebox[2.3cm][l]{"initial value"} = 0
@@ -562,11 +594,18 @@
 
     \subsection{Annexe 5 : Modèle humain} \label{Annexe:modelHumain}
     \begin{center}
-        \includegraphics[width=10cm]{./img/model_humain.png}
+        \includegraphics[width=13cm]{./img/model_humain.png}
     \end{center}
-    Où les blocs "step" (à gauche) sont paramétrés avec :
-    
+    Où :
+    \begin{itemize}
+        \item[] Le bloc "rate transition" est paramétré avec : 
+            \subitem $\bullet$ \makebox[4.2cm][l]{"slope"} = 6.5
+            \subitem $\bullet$ \makebox[4.2cm][l]{"start time"} = 0
+            \subitem $\bullet$ \makebox[4.2cm][l]{"initial output"} = 0
+        \item[] Et les blocs "step" sont paramétrés avec :
+    \end{itemize}
     \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}l l l}
+        \hline
         \multicolumn{1}{c}{Step haut} & \multicolumn{1}{c}{Step milieu} &\multicolumn{1}{c}{Step bas} \\
         \hline
     
@@ -592,7 +631,7 @@
 
     \subsection{Annexe 7 : Modèle observateur} \label{Annexe:modelObs}
     \begin{center}
-        \includegraphics[width=12cm]{./img/model_observateur.png}
+        \includegraphics[width=14cm]{./img/model_observateur.png}
     \end{center}
     Où :
     \begin{itemize}
@@ -603,7 +642,6 @@
             \subitem$\bullet$ \makebox[5.5cm][l]{"ouput buffer size (per channel)"} = 128
             \subitem$\bullet$ \makebox[5.5cm][l]{"buffer overlap"} = 64
             \subitem$\bullet$ \makebox[5.5cm][l]{"initial conditions"} = 0
-        \item[] La variable $ec_{max} = 10^{-3}$
         \item[] Et le bloc "MATLAB Function" contient :
     \end{itemize}
     \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
