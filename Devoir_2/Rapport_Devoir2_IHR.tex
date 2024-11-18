@@ -11,6 +11,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{subcaption}
+\usepackage{biblatex}
 
 \setcounter{secnumdepth}{0}
 \hypersetup{colorlinks=true, linkcolor=black}
@@ -34,6 +35,10 @@
     footnotesize,
     color=gray
 }}
+
+\addbibresource{img/references.bib}
+
+
 
 \begin{document}
     \selectlanguage{french}
@@ -64,13 +69,15 @@
     
     \tableofcontents
     \newpage
+    \listoffigures
+    \listoftables
+    \newpage
     
     \section{Introduction}
-    Les vibrations dans un mécanisme robotique manipulé par un opérateur humain peuvent significativement compromettre la précision et la qualité de la tâche effectuée. Lorsque l’opérateur applique une force via une poignée équipée d’un capteur, des vibrations non désirées peuvent survenir, surtout lorsque l'opérateur ajuste la rigidité de son bras. Ces vibrations perturbent non seulement la performance mais réduisent aussi le confort de l’utilisateur.
+    Les vibrations présentes dans un mécanisme robotique manipulé par un opérateur humain peuvent affecter de manière significative la précision et la qualité des tâches réalisées. Ces vibrations, générée notamment par la force que l'humain exerce sur l'interface de commande, peuvent devenir problématiques, notamment lorsqu’elles sont amplifiées par les mouvements involontaires ou l'ajustement de la rigidité du bras de l'opérateur. L'interaction entre l'humain et la machine crée ainsi un système complexe où les propriétés mécaniques du robot et de l’opérateur se superposent, entraînant des oscillations et perturbations indésirables. Ces vibrations ne nuisent pas seulement à la performance du système en altérant la précision des actions exécutées, mais elles peuvent également compromettre le confort de l'utilisateur et, à terme, affecter sa santé, en provoquant des tensions musculaires ou des troubles liés aux mouvements répétitifs.
 
-    Dans le cadre de ce projet, nous cherchons à modéliser et analyser l'impact perceptuel de ces vibrations en interaction humain-robot. Notre approche implique le développement d'un observateur de vibrations capable de détecter et segmenter les parties du signal problématiques, permettant ainsi un ajustement dynamique d’un contrôleur proportionnel en fonction de l'indice de vibration mesuré. L’objectif est de minimiser ces vibrations, tout en tenant compte de l’expérience ressentie par l’opérateur.
+    Dans ce contexte, cette étude se propose d'analyser et  de compenser ces vibrations. Notre approche repose sur le développement d’un observateur capable de détecter et de compenser efficacement l'impact des vibrations générées par les forces et mouvements de l’opérateur. En intégrant un modèle dynamique de la rigidité humaine dans la boucle d'asservissement, nous visons à réduire les effets indésirables de ces vibrations sur la qualité de la tâche réalisée. L’objectif étant de proposer une solution technologique qui permette d’améliorer la précision et le confort de l’utilisateur tout en garantissant une interaction harmonieuse entre le robot et son opérateur.
 
-    Ce rapport aborde plusieurs aspects de la conception et de la simulation du modèle du mécanisme, incluant la formulation des équations d’état du système, l’implémentation d’un critère de stabilité basé sur le critère de Routh-Hurwitz, ainsi que la configuration de la boucle de contrôle pour limiter les vibrations. Nous explorons également la détection autonome des caractéristiques vibratoires à travers une simulation pour tester l'efficacité de notre modèle dans des scénarios variés.
     
     \newpage
     \section{Énoncé 1 : Conception du modèle du mécanisme}
@@ -79,7 +86,7 @@
         \centering
         \includegraphics[width=14cm]{./img/modele_humain-meca_robotique.png}
         \caption{
-            Modèle du mécanisme robotique et de l'humain 
+            Modèle du mécanisme robotique et de l'humain \cite{Article1} \cite{Article2}
             \label{fig:ModelMecaRobotHumain}
         }
     \end{figure}
@@ -329,15 +336,79 @@
     \newpage
     \section{Énoncé 2 : Simulation}
     \subsection{Question 2.1}
+    Dans le but de confirmer les plages de gains admissibles, nous allons faire varier progressivement la valeur de $K_H$ selon une fonction rampe. Cette approche permettra d'observer l'effet de l'augmentation graduelle de la rigidité sur le système, et de déterminer précisément le seuil auquel une instabilité se manifeste.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=15cm]{./img/Kh_Evolution_Rampe.png}
+        \caption{Évolution de $K_H$ selon une rampe\label{fig:KhRampe}}
+    \end{figure}
+    
+    La \autoref{fig:RespKhRampe} présente la réponse du système pour cette simulation, tandis que la \autoref{fig:KhRampe} illustre l'évolution de la rigidité $K_H$ au fil du temps. On observe que la réponse du système tend vers l'infini lorsque $K_H \approx 1368$, ce qui indique une instabilité. Cette observation permet de conclure que la plage de valeurs de $K_H$  admettant un comportement stable est $K_H \in \left< 0, 1350 \right>$.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_KhRampe.png}
+        \caption{Évolution de la réponse avec $K_H$ selon une rampe\label{fig:RespKhRampe}}
+    \end{figure}
+    
     
     \subsection{Question 2.2}
+    Afin de confirmer la stabilité du système, on retire le modèle humain, comme le montre la \autoref{fig:SchemBlocNoHum}. Cela nous permettra d'observer le fonctionnement du système sans perturbations en entrée.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/SchemaBlocNoHum.png}
+        \caption{Évolution de la réponse sans humain\label{fig:SchemBlocNoHum}}
+    \end{figure}
+
+    La réponse obtenue présente un gain (cf. \autoref{fig:RespNoHumGain}) sans oscillation, ce qui témoigne d'une stabilité satisfaisante du système. En effet, l'absence d'oscillations suggère que le système atteint son état d'équilibre sans dépasser ou fluctuer autour de la consigne, caractéristique d'un comportement stable et bien contrôlé.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_NoHum_Gain.png}
+        \caption{Évolution de la réponse sans humain\label{fig:RespNoHumGain}}
+    \end{figure}
+    
+    Cette observation est renforcée par l'analyse du déphasage, illustrée dans la \autoref{fig:RespNoHumPhase}. Au cours de la simulation, aucun déphasage significatif n'est observé, ce qui confirme que la phase de la sortie suit de manière quasi-linéaire l'entrée, sans délai ou retard perceptible.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_NoHum_Phase.png}
+        \caption{Évolution de la phase de la réponse sans humain\label{fig:RespNoHumPhase}}
+    \end{figure}
+
     
     \subsection{Question 2.3}
+    Notre dernière simulation consistera à appliquer différentes rigiditées humaine afin d'observer la réponse de notre système. Pour cela, on fait varier $K_H$ selon trois valeurs définies par trois fonctions "step" configurées tel que présenté dans l'\hyperref[Annexe:modelHumain]{annexe 5}.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=15cm]{./img/Kh_Evolution_Steps.png}
+        \caption{Évolution de $K_H$ selon trois fonctions step\label{fig:KhSteps}}
+    \end{figure}
+
+    Sur la réponse présentée dans la \autoref{fig:RespKhSteps}, on observe que l'amortissement du système est satisfaisant tant que la valeur de $K_H$ reste proche de zéro. Cependant, lors de la première augmentation de la rigidité, on note l'apparition progressive d'ondulations. Dès que $K_H$ augmente pour sa valeur finale, ces ondulations deviennent plus prononcées. De plus, des vibrations commencent à se manifester sur le signal $v_1$, qui représente la vitesse des moteurs.
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=16cm]{./img/response_KhSteps.png}
+        \caption{Évolution de la réponse avec $K_H$ selon trois fonctions step\label{fig:RespKhSteps}}
+    \end{figure}
     
     
-    
+
     \newpage
-    \section{Annexe}
+    \section{Discussions}
+    Cette étude a permis de concevoir un système de compensation des vibrations générées par la rigidité du corps humain.
+
+    Cependant, le système présente certaines limites. En effet, il a été observé qu'au-delà d'un certain seuil de rigidité, le système rencontre des difficultés à amortir efficacement les oscillations et à compenser les vibrations. Si la rigidité continue d'augmenter, le système perd sa capacité à suivre les mouvements, ce qui conduit à une instabilité complète.
+
+    Ces résultats soulignent qu'il est essentiel pour l'opérateur de maintenir une vigilance constante lors de l'utilisation de cet outil, notamment en veillant à limiter l'impact de la rigidité corporelle sur le système.
+    
+    
+    \section{Conclusion}
+    En conclusion, cette étude a permis de développer un système innovant destiné à améliorer la stabilité d'un dispositif asservi, en limitant l'impact des variations humaines sur sa dynamique. Ce système offre une solution prometteuse pour compenser les effets de la rigidité corporelle, contribuant ainsi à optimiser les performances du système dans des conditions d'utilisation variées.
+
+    Après avoir validé les performances du système par simulation, la prochaine étape consistera à concevoir un prototype fonctionnel pour tester son efficacité dans des conditions réelles. Si cette phase de prototypage se révèle concluante, une phase de validation expérimentale pourra être lancée, ouvrant ainsi la voie à une commercialisation éventuelle du produit.
+
+
+
+    \newpage
+    \section{Annexes}
     \subsection{Annexe 1 : Liste des valeurs fixes} \label{Annexe:ValList}
     \begin{itemize}
         \item[] \makebox[5cm][l]{\makebox[.6cm][l]{$M_R$} = 500 $kg$} \textit{(masse de la charge)}
@@ -399,11 +470,7 @@
     figure;
     sys = tf(TFFun(tf('s')));
     rlocus(sys)
-    title("")
-    xlabel("Imaginaires")
-    ylabel("Reels")
     axis([-0.5, 0.5, -2, 2])
-    fontname(FontName)
     [K, poles] = rlocfind(sys);
     
 
@@ -530,19 +597,16 @@
             -mK     mK      -mC     mC;
              MK     -MK     C1/M    -(C1+C2)/M
             ];
-    
         B = [
              0;
              0;
              1/m;
              0
             ];
-    
         C = [
              0      1       0       0;
              0      0       1       0;
             ];
-    
         D = zeros(2, 1);
     end
     \end{lstlisting}
@@ -550,9 +614,9 @@
 
     \subsection{Annexe 4 : Modèle complet} \label{Annexe:modelComplet}
     \begin{center}
-        \includegraphics[width=16cm]{./img/model_complet.png}
+        \includegraphics[width=24cm, angle=-90]{./img/model_complet.png}
     \end{center}
-    Où le bloc "step" \textbf{X} est paramétré avec : 
+    Où le bloc "step" (\textbf{X}) est paramétré avec : 
     \begin{itemize}
         \item[$\bullet$] \makebox[2.3cm][l]{"step time"} = 0.5
         \item[$\bullet$] \makebox[2.3cm][l]{"initial value"} = 0
@@ -562,11 +626,18 @@
 
     \subsection{Annexe 5 : Modèle humain} \label{Annexe:modelHumain}
     \begin{center}
-        \includegraphics[width=10cm]{./img/model_humain.png}
+        \includegraphics[width=13cm]{./img/model_humain.png}
     \end{center}
-    Où les blocs "step" (à gauche) sont paramétrés avec :
-    
+    Où :
+    \begin{itemize}
+        \item[] Le bloc "rate transition" est paramétré avec : 
+            \subitem $\bullet$ \makebox[4.2cm][l]{"slope"} = 6.5
+            \subitem $\bullet$ \makebox[4.2cm][l]{"start time"} = 0
+            \subitem $\bullet$ \makebox[4.2cm][l]{"initial output"} = 0
+        \item[] Et les blocs "step" sont paramétrés avec :
+    \end{itemize}
     \begin{tabular*}{1\linewidth}{@{\extracolsep{\fill}}l l l}
+        \hline
         \multicolumn{1}{c}{Step haut} & \multicolumn{1}{c}{Step milieu} &\multicolumn{1}{c}{Step bas} \\
         \hline
     
@@ -592,7 +663,7 @@
 
     \subsection{Annexe 7 : Modèle observateur} \label{Annexe:modelObs}
     \begin{center}
-        \includegraphics[width=12cm]{./img/model_observateur.png}
+        \includegraphics[width=14cm]{./img/model_observateur.png}
     \end{center}
     Où :
     \begin{itemize}
@@ -603,7 +674,6 @@
             \subitem$\bullet$ \makebox[5.5cm][l]{"ouput buffer size (per channel)"} = 128
             \subitem$\bullet$ \makebox[5.5cm][l]{"buffer overlap"} = 64
             \subitem$\bullet$ \makebox[5.5cm][l]{"initial conditions"} = 0
-        \item[] La variable $ec_{max} = 10^{-3}$
         \item[] Et le bloc "MATLAB Function" contient :
     \end{itemize}
     \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
@@ -627,5 +697,9 @@
     
     \subsection{Lien vers le Dépôt GitHub}
     \url{https://github.com/BlueWan14/Cours_IHR/tree/main/Devoir_2}
-    
+
+
+
+    \newpage
+    \printbibliography
 \end{document}
