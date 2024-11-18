@@ -11,6 +11,7 @@
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{subcaption}
+\usepackage{biblatex}
 
 \setcounter{secnumdepth}{0}
 \hypersetup{colorlinks=true, linkcolor=black}
@@ -34,6 +35,10 @@
     footnotesize,
     color=gray
 }}
+
+\addbibresource{img/references.bib}
+
+
 
 \begin{document}
     \selectlanguage{french}
@@ -69,11 +74,10 @@
     \newpage
     
     \section{Introduction}
-    Les vibrations dans un mécanisme robotique manipulé par un opérateur humain peuvent significativement compromettre la précision et la qualité de la tâche effectuée. Lorsque l’opérateur applique une force via une poignée équipée d’un capteur, des vibrations non désirées peuvent survenir, surtout lorsque l'opérateur ajuste la rigidité de son bras. Ces vibrations perturbent non seulement la performance mais réduisent aussi le confort de l’utilisateur.
+    Les vibrations présentes dans un mécanisme robotique manipulé par un opérateur humain peuvent affecter de manière significative la précision et la qualité des tâches réalisées. Ces vibrations, générée notamment par la force que l'humain exerce sur l'interface de commande, peuvent devenir problématiques, notamment lorsqu’elles sont amplifiées par les mouvements involontaires ou l'ajustement de la rigidité du bras de l'opérateur. L'interaction entre l'humain et la machine crée ainsi un système complexe où les propriétés mécaniques du robot et de l’opérateur se superposent, entraînant des oscillations et perturbations indésirables. Ces vibrations ne nuisent pas seulement à la performance du système en altérant la précision des actions exécutées, mais elles peuvent également compromettre le confort de l'utilisateur et, à terme, affecter sa santé, en provoquant des tensions musculaires ou des troubles liés aux mouvements répétitifs.
 
-    Dans le cadre de ce projet, nous cherchons à modéliser et analyser l'impact perceptuel de ces vibrations en interaction humain-robot. Notre approche implique le développement d'un observateur de vibrations capable de détecter et segmenter les parties du signal problématiques, permettant ainsi un ajustement dynamique d’un contrôleur proportionnel en fonction de l'indice de vibration mesuré. L’objectif est de minimiser ces vibrations, tout en tenant compte de l’expérience ressentie par l’opérateur.
+    Dans ce contexte, cette étude se propose d'analyser et  de compenser ces vibrations. Notre approche repose sur le développement d’un observateur capable de détecter et de compenser efficacement l'impact des vibrations générées par les forces et mouvements de l’opérateur. En intégrant un modèle dynamique de la rigidité humaine dans la boucle d'asservissement, nous visons à réduire les effets indésirables de ces vibrations sur la qualité de la tâche réalisée. L’objectif étant de proposer une solution technologique qui permette d’améliorer la précision et le confort de l’utilisateur tout en garantissant une interaction harmonieuse entre le robot et son opérateur.
 
-    Ce rapport aborde plusieurs aspects de la conception et de la simulation du modèle du mécanisme, incluant la formulation des équations d’état du système, l’implémentation d’un critère de stabilité basé sur le critère de Routh-Hurwitz, ainsi que la configuration de la boucle de contrôle pour limiter les vibrations. Nous explorons également la détection autonome des caractéristiques vibratoires à travers une simulation pour tester l'efficacité de notre modèle dans des scénarios variés.
     
     \newpage
     \section{Énoncé 1 : Conception du modèle du mécanisme}
@@ -82,7 +86,7 @@
         \centering
         \includegraphics[width=14cm]{./img/modele_humain-meca_robotique.png}
         \caption{
-            Modèle du mécanisme robotique et de l'humain 
+            Modèle du mécanisme robotique et de l'humain \cite{Article1} \cite{Article2}
             \label{fig:ModelMecaRobotHumain}
         }
     \end{figure}
@@ -389,7 +393,17 @@
 
     \newpage
     \section{Discussions}
+    Cette étude a permis de concevoir un système de compensation des vibrations générées par la rigidité du corps humain.
+
+    Cependant, le système présente certaines limites. En effet, il a été observé qu'au-delà d'un certain seuil de rigidité, le système rencontre des difficultés à amortir efficacement les oscillations et à compenser les vibrations. Si la rigidité continue d'augmenter, le système perd sa capacité à suivre les mouvements, ce qui conduit à une instabilité complète.
+
+    Ces résultats soulignent qu'il est essentiel pour l'opérateur de maintenir une vigilance constante lors de l'utilisation de cet outil, notamment en veillant à limiter l'impact de la rigidité corporelle sur le système.
+    
+    
     \section{Conclusion}
+    En conclusion, cette étude a permis de développer un système innovant destiné à améliorer la stabilité d'un dispositif asservi, en limitant l'impact des variations humaines sur sa dynamique. Ce système offre une solution prometteuse pour compenser les effets de la rigidité corporelle, contribuant ainsi à optimiser les performances du système dans des conditions d'utilisation variées.
+
+    Après avoir validé les performances du système par simulation, la prochaine étape consistera à concevoir un prototype fonctionnel pour tester son efficacité dans des conditions réelles. Si cette phase de prototypage se révèle concluante, une phase de validation expérimentale pourra être lancée, ouvrant ainsi la voie à une commercialisation éventuelle du produit.
 
 
 
@@ -683,5 +697,9 @@
     
     \subsection{Lien vers le Dépôt GitHub}
     \url{https://github.com/BlueWan14/Cours_IHR/tree/main/Devoir_2}
-    
+
+
+
+    \newpage
+    \printbibliography
 \end{document}
