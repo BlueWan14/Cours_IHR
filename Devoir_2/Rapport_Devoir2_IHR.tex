@@ -24,7 +24,7 @@
     commentstyle=\color{codegreen},
     keywordstyle=\color{codeblue},
     stringstyle=\color{codepurple},
-    basicstyle=\fontfamily{pcr}\normalsize,
+    basicstyle=\fontfamily{pcr}\small,
     breakatwhitespace=true,
     breaklines=true,
     frame=lines,
@@ -74,7 +74,7 @@
     \newpage
     
     \section{Introduction}
-    Les vibrations présentes dans un mécanisme robotique manipulé par un opérateur humain peuvent affecter de manière significative la précision et la qualité des tâches réalisées. Ces vibrations, générée notamment par la force que l'humain exerce sur l'interface de commande, peuvent devenir problématiques, notamment lorsqu’elles sont amplifiées par les mouvements involontaires ou l'ajustement de la rigidité du bras de l'opérateur. L'interaction entre l'humain et la machine crée ainsi un système complexe où les propriétés mécaniques du robot et de l’opérateur se superposent, entraînant des oscillations et perturbations indésirables. Ces vibrations ne nuisent pas seulement à la performance du système en altérant la précision des actions exécutées, mais elles peuvent également compromettre le confort de l'utilisateur et, à terme, affecter sa santé, en provoquant des tensions musculaires ou des troubles liés aux mouvements répétitifs.
+    Les vibrations présentes dans un mécanisme robotique manipulé par un opérateur humain peuvent affecter de manière significative la précision et la qualité des tâches réalisées. Ces vibrations, générées notamment par la force que l'humain exerce sur l'interface de commande, peuvent devenir problématiques, notamment lorsqu’elles sont amplifiées par les mouvements involontaires ou l'ajustement de la rigidité du bras de l'opérateur. L'interaction entre l'humain et la machine crée ainsi un système complexe où les propriétés mécaniques du robot et de l’opérateur se superposent, entraînant des oscillations et perturbations indésirables. Ces vibrations ne nuisent pas seulement à la performance du système en altérant la précision des actions exécutées, mais elles peuvent également compromettre le confort de l'utilisateur et, à terme, affecter sa santé, en provoquant des tensions musculaires ou des troubles liés aux mouvements répétitifs.
 
     Dans ce contexte, cette étude se propose d'analyser et  de compenser ces vibrations. Notre approche repose sur le développement d’un observateur capable de détecter et de compenser efficacement l'impact des vibrations générées par les forces et mouvements de l’opérateur. En intégrant un modèle dynamique de la rigidité humaine dans la boucle d'asservissement, nous visons à réduire les effets indésirables de ces vibrations sur la qualité de la tâche réalisée. L’objectif étant de proposer une solution technologique qui permette d’améliorer la précision et le confort de l’utilisateur tout en garantissant une interaction harmonieuse entre le robot et son opérateur.
 
@@ -210,23 +210,22 @@
     
     
     \subsection{Question 1.2}
-    Lors d'une étude précédente, nous nous penchions sur la détectection des vibrations générées par le système lorsque l'humain se régédifie. Pour cela, nous analysions la vitesse des moteurs pour en extraire des caractéristiques temporelles et/ou fréquentielles qui nous permettent de déterminer la présence des vibrations. \\
-    
+    Lors d'une étude précédente, nous nous penchions sur la détectection des vibrations générées par le système lorsque l'humain se régidifie. Pour cela, nous analysions la vitesse des moteurs pour en extraire des caractéristiques temporelles qui nous permettent de déterminer la présence des vibrations.   
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/SchemaBlocAvecObs.png}
-        \caption{Commande des mécanisme robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
+        \caption{Commande des mécanismes robotique et humain avec observateur\label{fig:SchemaBlocAvecObs}}
     \end{figure}
     
-    Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations générées par le système.
+    Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations créées par le système.
     
-    Dans Simulink, on représentera ce bloc avec l'architecture et la fonction contenues dans l'\hyperref[Annexe:modelObs]{annexe 7}.
+    Dans Simulink, on représentera ce bloc avec l'architecture contenue dans l'\hyperref[Annexe:modelObs]{annexe 7}. Celle-ci consiste analyser l'écart-type du signal afin de déterminer la présence de vibrations.
     
     
     \subsection{Question 1.3}
-    Le critère de Routh-Hurwitz est une méthode mathématique permettant déterminer rapidement la stabilité d'un système. Elle consiste à générer un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
+    Le critère de Routh-Hurwitz est une méthode mathématique permettant de déterminer rapidement la stabilité d'un système. Elle consiste à produire un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
     
-    \begin{table}[ht]
+    \begin{table}[H]
         \centering
         \[
         \begin{array}{|c|c c c c|}
@@ -267,9 +266,9 @@
             \end{vmatrix}
             = \frac{b_{n-1} a_{n-i-2} - a_n b_{n-i-2}}{b_{n-1}}$
         \item[$\bullet$] etc.
-    \end{itemize} 
+    \end{itemize}
     
-    On utilise cette méthode afin de déterminer la plage de valeurs des gain $K_p$. Afin de construire cette table plus simplement, on utilise cette fonction dans Matlab : \\
+    Cette méthode est utilisée pour déterminer l'intervalle de valeurs du gain $K_p$. Afin de simplifier la construction de cette table, nous utilisons la fonction suivante dans Matlab :
     \begin{lstlisting}[label={code:fctCritRH}, caption={Fonction Matlab génération du critère de Routh-Hurwitz}, language=Matlab]
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Parametres :                                        %
@@ -313,18 +312,18 @@
     end
     \end{lstlisting}
 
-    Les gains $K_p$ et $K_H$ étant dépendants l'un de l'autre, leur plage de valeurs varie en fonction de l'autre. Par conséquent, il nous est obligatoire de fixer l'un des deux. Ici, fixons $K_H = 50 N/m$, s'assurant ainsi la stabilité du système.
+    Les gains $K_p$ et $K_H$ étant dépendants l'un de l'autre, leur plage de valeurs varie en fonction de l'autre. Par conséquent, il nous est obligatoire de fixer l'un des deux. Ici, nous considérons $K_H = 50 N/m$, s'assurant ainsi la stabilité du système.
     
-    En utilisant les valeurs données en \hyperref[Annexe:ValList]{annexe 1} dans le tableau du critère de Routh-Hurwitz, on obtient donc cinq coefficients contenant $K_p$. Parmis ceux-ci, le critère $S^2$ devient négatif à $K_p = 90$, comme présenté à la \autoref{fig:CoefS2}. Ainsi, on déduit que $K_p \in \left< 0, 90 \right>$.
+    En remplaçant les variables présentes dans le tableau du critère de Routh-Hurwitz par les valeurs données en \hyperref[Annexe:ValList]{annexe 1}, il reste cinq coefficients contenant $K_p$. Parmis ceux-ci, le critère $S^2$ devient négatif à $K_p = 90$, comme présenté à la \autoref{fig:CoefS2}. Ainsi, on déduit que $K_p \in \left< 0, 90 \right>$.
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/plage_coefKp.png}
         \caption{Critère de Routh-Hurwitz $S^2$ en fonction de $K_p$\label{fig:CoefS2}}
     \end{figure}
 
-    Afin de confirmer cette valeur, nous pouvons utiliser le lieu des racines. Cette méthode consiste à faire varier un gain en entrée du système afin de déterminer le moment auquel ce-dernier devient astable.
+    Afin de confirmer cette valeur, nous pouvons utiliser le lieu des racines. Cette méthode consiste à faire varier un gain en entrée du système et ainsi de déterminer le moment auquel ce-dernier devient instable.
     
-    Dans notre cas, le gain variable est $K_H$ et on fixe $K_p = 90$, condition limite déterminée à la \autoref{fig:CoefS2}. En traçant le lieu des racines, comme montré à la \autoref{fig:LieuRacineKh}, on remarque que le système est stable jusqu'à $K_H \approx 50$ ($K_H = 46.9532$ au point de mesure noté sur la \autoref{fig:LieuRacineKh}).
+    Ici, le gain variable est $K_H$ et on fixe $K_p = 90$, condition limite déterminée à la \autoref{fig:CoefS2}. En traçant le lieu des racines, comme montré à la \autoref{fig:LieuRacineKh}, on remarque que le système est stable jusqu'à $K_H \approx 50$ ($K_H = 46.9532$ au point de mesure noté sur la \autoref{fig:LieuRacineKh}). Cela confirme la plage déterminée via le critère de Routh-Hurwitz.
     \begin{figure}[H]
         \centering
         \includegraphics[width=13cm]{./img/planRacine_Kh.png}
@@ -356,7 +355,7 @@
     \begin{figure}[H]
         \centering
         \includegraphics[width=16cm]{./img/SchemaBlocNoHum.png}
-        \caption{Évolution de la réponse sans humain\label{fig:SchemBlocNoHum}}
+        \caption{Commande du mécanisme robotique sans humain\label{fig:SchemBlocNoHum}}
     \end{figure}
 
     La réponse obtenue présente un gain (cf. \autoref{fig:RespNoHumGain}) sans oscillation, ce qui témoigne d'une stabilité satisfaisante du système. En effet, l'absence d'oscillations suggère que le système atteint son état d'équilibre sans dépasser ou fluctuer autour de la consigne, caractéristique d'un comportement stable et bien contrôlé.
@@ -375,7 +374,7 @@
 
     
     \subsection{Question 2.3}
-    Notre dernière simulation consistera à appliquer différentes rigiditées humaine afin d'observer la réponse de notre système. Pour cela, on fait varier $K_H$ selon trois valeurs définies par trois fonctions "step" configurées tel que présenté dans l'\hyperref[Annexe:modelHumain]{annexe 5}.
+    Notre dernière simulation consistera à appliquer différentes rigidités humaine afin d'observer la réponse de notre système. Pour cela, on fait varier $K_H$ selon trois valeurs définies par trois fonctions "step" configurées telles que présenté dans l'\hyperref[Annexe:modelHumain]{annexe 5}.
     \begin{figure}[H]
         \centering
         \includegraphics[width=15cm]{./img/Kh_Evolution_Steps.png}
@@ -401,7 +400,7 @@
     
     
     \section{Conclusion}
-    En conclusion, cette étude a permis de développer un système innovant destiné à améliorer la stabilité d'un dispositif asservi, en limitant l'impact des variations humaines sur sa dynamique. Ce système offre une solution prometteuse pour compenser les effets de la rigidité corporelle, contribuant ainsi à optimiser les performances du système dans des conditions d'utilisation variées.
+    En conclusion, ce système offre une solution prometteuse pour compenser les effets de la rigidité corporelle, contribuant ainsi à optimiser les performances du système dans des conditions d'utilisation variées.
 
     Après avoir validé les performances du système par simulation, la prochaine étape consistera à concevoir un prototype fonctionnel pour tester son efficacité dans des conditions réelles. Si cette phase de prototypage se révèle concluante, une phase de validation expérimentale pourra être lancée, ouvrant ainsi la voie à une commercialisation éventuelle du produit.
 
