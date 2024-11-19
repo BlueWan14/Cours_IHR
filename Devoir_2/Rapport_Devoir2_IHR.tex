@@ -219,7 +219,10 @@
     
     Afin de rendre le système autonome, il est donc nécessaire de rendre automatique cette recherche de caractéristiques. C'est pourquoi, comme le montre la \autoref{fig:SchemaBlocAvecObs}, on ajoute un observateur qui va influer sur la valeur du gain $K_p$, et donc, limiter les vibrations créées par le système.
     
-    Dans Simulink, on représentera ce bloc avec l'architecture contenue dans l'\hyperref[Annexe:modelObs]{annexe 7}. Celle-ci consiste analyser l'écart-type du signal afin de déterminer la présence de vibrations.
+    Dans Simulink, on représentera ce bloc avec l’architecture contenue dans l'\hyperref[Annexe:modelObs]{annexe 7}. Celle-ci consiste à analyser l’écart-type d'échantillons du signal afin de déterminer la présence de vibrations à un instant donné. Avec cette donnée, on calcule la compensation à appliquer via la formule suivante.
+    \begin{equation}
+        \text{compensation} = 1 - \frac{\text{écart-type de l'échantillon}}{\text{écart-type limite}}
+    \end{equation}
     
     
     \subsection{Question 1.3}
