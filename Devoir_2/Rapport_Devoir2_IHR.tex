@@ -226,7 +226,7 @@
     
     
     \subsection{Question 1.3}
-    Le critère de Routh-Hurwitz est une méthode mathématique permettant de déterminer rapidement la stabilité d'un système. Elle consiste à produire un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie astable du plan-s (c'est-à-dire dans la partie réel positive).
+    Le critère de Routh-Hurwitz est une méthode mathématique permettant de déterminer rapidement la stabilité d'un système. Elle consiste à produire un tableau à partir des coefficients du dénominateur de la fonction de transfert tel que présenté au \autoref{tab:table_theo_critRH}. Une fois construit, on observe sa première colonne. Le nombre de changement de signe détermine la quantité de racines étant dans la partie instable du plan-s (c'est-à-dire dans la partie réel positive).
     
     \begin{table}[H]
         \centering
@@ -426,7 +426,7 @@
 
 
     \subsection{Annexe 2 : Fichier de calculs des plages de $K_p$ et $K_H$} \label{Annexe:calcRHFile}
-    \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
+    \begin{lstlisting}[caption={Fichier de calculs des plages de $K_p$ et $K_H$}, language=Matlab]
     % Initialisation ======================================
     close all
     system_config
@@ -542,7 +542,7 @@
 
 
     \subsection{Annexe 3 : Fichier de configuration de la simulation} \label{Annexe:configSimu}
-    \begin{lstlisting}[caption={Fonction simulink de calcul du compensateur}, language=Matlab]
+    \begin{lstlisting}[caption={Fichier de configuration de la simulation}, language=Matlab]
     clear;
     clc;
 
